@@ -1,0 +1,201 @@
+<?xml version="1.0"?>
+<project name="Rewrite Build" default="package" basedir=".">
+	<description>
+		Build file for moving all files into a directory structure easily deployable
+	</description>
+
+	<!--
+		Committers: HOW TO CONFIGURE YOUR ENVIRONMENT
+	-->
+
+	<!--
+		=================================
+			Target: init
+			Initializes the general settings and properties used in the build
+		=================================
+	-->
+	<target name="init">
+		<property name="project" value="Coreactivity" />
+		<property name="jenkins_workspace" value="C:/Program Files/Jenkins/workspace/${project}" />
+		
+		<!--Root directory for the ColdFusion-->
+		
+		<!--
+			=================================
+				coldfusion.instance location examples
+				*standalone instance - D:/ColdFusion8
+				*multiple instance - C:/JRun4/servers/myserver/cfusion.ear/cfusion.war
+			=================================
+		-->
+		
+		<property name="coldfusion.instance" location="C:/JRun4/servers/mike/cfusion.ear/cfusion.war" />
+		
+		<!--Root directory for the site-->
+        <property name="webroot" location="C:/JRun4/servers/mike/cfusion.ear/cfusion.war" />
+        
+        <!--Jar Files used for compiling-->
+		
+		<!--
+			=================================
+				jrun.jar location examples
+				*standalone instance - C:/JRun/lib/jrun.jar
+				*multiple instance - C:/ColdFusion8/runtime/lib/jrun.jar
+			=================================
+		-->
+		
+        <property name="jrun.jar" value="//ricdev/JRun4/lib/jrun.jar"/>
+		
+		<!--
+			=================================
+				coldfusion.runtime.libpath location examples
+				*standalone instance - D:/ColdFusion8//wwwroot/WEB-INF/lib
+				*multiple instance - C:/JRun4/servers/myserver/cfusion.ear/cfusion.war/WEB-INF/lib
+			=================================
+		-->
+		
+		<property name="coldfusion.runtime.libpath" value="${webroot}/WEB-INF/lib"/>
+		<property name="coldfusion.bootstrap.jar" value="${coldfusion.runtime.libpath}/cfmx_bootstrap.jar"/>
+        <property name="coldfusion.cfx.jar" value="${coldfusion.runtime.libpath}/cfx.jar"/>
+        
+        <!--Compiler Arguments-->
+        <property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/"/>
+        <property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}"/>
+	</target>
+
+	<!--
+		=================================
+			Target: publish
+			 - compiles
+			 - runs tests
+			 - packages
+			 - uploads
+		=================================
+	-->
+	<target name="publish" depends="init,compile.acf,clean,package,upload" description="--> packages into a zip and uploads to google code" />
+
+	<!--
+		=================================
+			Target: package
+			Generates the zip archive
+		=================================
+	-->
+	<target name="package" depends="clean" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
+		<echo>packaging stuff</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: clean
+			Cleans up un-needed files
+		=================================
+	-->
+	<target name="clean" depends="init">
+		<echo>Cleaning started</echo>
+		<echo>Deleting files from ${webroot}/${project}</echo>
+		<delete dir="${webroot}/${project}">
+			<exclude name="CFIDE/"/>
+			<exclude name="WEB-INF/"/>
+			<exclude name="META-INF/"/>
+			<exclude name="snapshots/"/>
+			<exclude name=".settings/"/>
+		</delete>
+		<echo>Clean-up done.</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: compile.copy
+			Copying files for compile test
+		=================================
+	-->
+	<target name="compile.copy" depends="init,clean">
+		<echo>Copying files to ${webroot}/${project} from ${jenkins_workspace}</echo>
+		<copy todir="${webroot}/${project}/compile_check" >  
+			<fileset dir="${jenkins_workspace}">
+				<include name="**"/>
+				<exclude name="**/mxunit/**"/>
+				<exclude name="**/plugins/**"/>
+			</fileset>
+		</copy>
+		<echo>Done copying files.</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: upload
+			Uploads the release zip to the Google Code site
+		=================================
+	-->
+	<target name="upload">
+		<echo>uploading stuff</echo>
+	</target>
+
+	<!--
+		=================================
+			Target: genApiDocs
+		=================================
+	-->
+	<target name="genApiDocs" depends="init">
+		<echo>generating docs</echo>
+	</target>
+
+	<!--
+		=================================
+			Target: compile.acf
+			Compiles the ColdFusion files for any syntax errors
+		=================================
+	-->
+    <target name="compile.acf" depends="compile.copy">
+    	<tstamp/>
+    			
+        <echo>Starting Syntax check...</echo>
+        <java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt">
+            <classpath>
+                <pathelement location="${jrun.jar}"/>
+                <pathelement location="${coldfusion.bootstrap.jar}"/>
+                <pathelement location="${coldfusion.cfx.jar}"/>
+            </classpath>
+            
+            <sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}"/>
+            <sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}"/>
+            
+            <arg line=" Compiler "/>
+            <arg line=" -webroot ${webroot} "/>
+            <arg line=" ${webroot}/compile_check" />
+        </java>
+    	
+    	<!--need to check log for failures-->
+    	<loadfile srcfile="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt" property="src.file.cferrors" >
+	    	<filterchain>
+	    		<LineContainsRegExp>
+	    			<regexp pattern="^Error*"/>
+	    		</LineContainsRegExp>
+	    	</filterchain>
+	    </loadfile>
+    	
+    	<delete file="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt"/>
+    	
+    	<property name="src.file.cferrors" value="No Syntax Errors"/>
+    	
+    	<echo>${src.file.cferrors}</echo>
+    	
+    	<echo>Syntax check complete.</echo>
+    	
+    	<fail>
+    		<condition>
+    			<equals arg1="${java.compilecheck}" arg2="1"/>
+    		</condition>
+    	</fail> 
+    </target>
+	
+	<!--
+		=================================
+			Target: jenkinsTest
+			Test for Jenkins to run on initial setup
+		=================================
+	-->
+	<target name="jenkinsTest">
+		<echo>Full speed ahead Scotty!</echo>
+	</target>
+	
+</project>

@@ -1,0 +1,1 @@
+This is for using Continuous Integration with ColdFusion without unit tests. A syntax check will occur setting the stage for more unit testing and other progressions in the build.xml.
