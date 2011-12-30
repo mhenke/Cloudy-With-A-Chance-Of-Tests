@@ -1,12 +1,8 @@
 <?xml version="1.0"?>
 <project name="Rewrite Build" default="package" basedir=".">
 	<description>
-		Build file for moving all files into a directory structure easily deployable
+		Build file for syntax and other easy to implement coldfusion checks
 	</description>
-
-	<!--
-		Committers: HOW TO CONFIGURE YOUR ENVIRONMENT
-	-->
 
 	<!--
 		=================================
@@ -15,51 +11,49 @@
 		=================================
 	-->
 	<target name="init">
-		<property name="project" value="Coreactivity" />
-		<property name="jenkins_workspace" value="C:/Program Files/Jenkins/workspace/${project}" />
+    	<tstamp/>
+
+		<!--specific build location variables-->
+		<property file="build.properties"/>
 		
-		<!--Root directory for the ColdFusion-->
+		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}"/>
 		
-		<!--
-			=================================
-				coldfusion.instance location examples
-				*standalone instance - D:/ColdFusion8
-				*multiple instance - C:/JRun4/servers/myserver/cfusion.ear/cfusion.war
-			=================================
-		-->
-		
-		<property name="coldfusion.instance" location="C:/JRun4/servers/mike/cfusion.ear/cfusion.war" />
-		
-		<!--Root directory for the site-->
-        <property name="webroot" location="C:/JRun4/servers/mike/cfusion.ear/cfusion.war" />
-        
-        <!--Jar Files used for compiling-->
-		
-		<!--
-			=================================
-				jrun.jar location examples
-				*standalone instance - C:/JRun/lib/jrun.jar
-				*multiple instance - C:/ColdFusion8/runtime/lib/jrun.jar
-			=================================
-		-->
-		
-        <property name="jrun.jar" value="//ricdev/JRun4/lib/jrun.jar"/>
-		
-		<!--
-			=================================
-				coldfusion.runtime.libpath location examples
-				*standalone instance - D:/ColdFusion8//wwwroot/WEB-INF/lib
-				*multiple instance - C:/JRun4/servers/myserver/cfusion.ear/cfusion.war/WEB-INF/lib
-			=================================
-		-->
-		
-		<property name="coldfusion.runtime.libpath" value="${webroot}/WEB-INF/lib"/>
-		<property name="coldfusion.bootstrap.jar" value="${coldfusion.runtime.libpath}/cfmx_bootstrap.jar"/>
-        <property name="coldfusion.cfx.jar" value="${coldfusion.runtime.libpath}/cfx.jar"/>
+        <property name="coldfusion.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar"/>
+        <property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar"/>
         
         <!--Compiler Arguments-->
         <property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/"/>
         <property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}"/>
+		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt"/>
+		
+		<!-- Arguments for CFQueryParam checker -->
+		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go"/>
+		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml"/>
+		<property name="qpscanner.failOnAlertsFound" value="false"/>
+		<property name="qpscanner.config" value="default"/>
+		<property name="qpscanner.profile" value="default"/>
+		
+		<property name="qpscanner.recurse" value="true"/>
+		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)"/>
+		<property name="qpscanner.scanOrderBy" value="false"/>
+		<property name="qpscanner.scanQoQ" value="false"/>
+		<property name="qpscanner.scanBuiltinFunc" value="false"/>
+		<property name="qpscanner.showScopeInfo" value="false"/>
+		<property name="qpscanner.highlightClientScopes" value="false"/>
+		<property name="qpscanner.clientScopes" value="form,url,client,cookie"/>
+		<property name="qpscanner.results" value="${qpscanner.outputfile}"/>
+		
+		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/"/>
+
+		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/"/>
+		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv"/>
+		<property name="varscoper.recursiveDirectory" value="true" />		
+
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties">
+			<classpath>
+				<pathelement location="lib/ant-contrib-1.0b3.jar"/>
+			</classpath>
+		</taskdef>
 	</target>
 
 	<!--
@@ -71,7 +65,7 @@
 			 - uploads
 		=================================
 	-->
-	<target name="publish" depends="init,compile.acf,clean,package,upload" description="--> packages into a zip and uploads to google code" />
+	<target name="publish" depends="init,syntax.acf,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -79,47 +73,122 @@
 			Generates the zip archive
 		=================================
 	-->
-	<target name="package" depends="clean" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
+	<target name="package" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
 		<echo>packaging stuff</echo>
 	</target>
 	
 	<!--
 		=================================
-			Target: clean
-			Cleans up un-needed files
+			Target: clean.webserver
+			Cleans up un-needed files on webserver
 		=================================
 	-->
-	<target name="clean" depends="init">
+	<target name="clean.webserver" depends="init">
 		<echo>Cleaning started</echo>
-		<echo>Deleting files from ${webroot}/${project}</echo>
-		<delete dir="${webroot}/${project}">
-			<exclude name="CFIDE/"/>
-			<exclude name="WEB-INF/"/>
-			<exclude name="META-INF/"/>
-			<exclude name="snapshots/"/>
-			<exclude name=".settings/"/>
+		<delete dir="${webroot}">
+			<exclude name="**/CFIDE/**"/>
+			<exclude name="**/WEB-INF/**"/>
+			<exclude name="**/META-INF/**"/>
+			<exclude name="**/varscoper4/**"/>
+			<exclude name="**/qpscanner/**"/>
+			<exclude name="**/colddoc/**"/>
+			<exclude name="**/snapshots/**"/>
+			<exclude name="**/.settings"/>
+			exclude name="**/.project"/>
 		</delete>
 		<echo>Clean-up done.</echo>
 	</target>
 	
 	<!--
 		=================================
-			Target: compile.copy
+			Target: clean.buildfolder
+			Cleans up un-needed files in build folder
+		=================================
+	-->
+	<target name="clean.buildfolder">
+		<echo>Cleaning started</echo>
+		<delete dir="${webroot}/${project}/${buildfolder}"/>
+		<echo>Clean-up done.</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: clean.pre
+			Cleans up un-needed files in jenkins workspace
+		=================================
+	-->
+	<target name="clean.pre" depends="init">
+		<echo>Cleaning started</echo>
+		<delete dir="${workspace}">
+			<exclude name="**/build.properties"/>
+		</delete>
+		<echo>Clean-up done.</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: clean
+			Generates the zip archive
+		=================================
+	-->
+	<target name="clean" description="clean stuff">
+		<echo>clean stuff</echo>
+	</target>
+	
+	<!--
+		=================================
+			Target: syntax.copy
 			Copying files for compile test
 		=================================
 	-->
-	<target name="compile.copy" depends="init,clean">
-		<echo>Copying files to ${webroot}/${project} from ${jenkins_workspace}</echo>
-		<copy todir="${webroot}/${project}/compile_check" >  
-			<fileset dir="${jenkins_workspace}">
-				<include name="**"/>
+	<target name="syntax.copy" depends="init,clean.buildfolder" unless="jenkins_workspace" >
+		<echo>Copying from ${workspace}/${project}</echo>
+		<copy todir="${filePathToBuildFolder}" >  
+			<fileset dir="${workspace}/${project}">
+				<include name="**/*.cfm"/>
+				<include name="**/*.cfml"/>
+				<include name="**/*.cfc"/>
 				<exclude name="**/mxunit/**"/>
 				<exclude name="**/plugins/**"/>
+				<exclude name="**/CFIDE/**"/>
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+				<exclude name="**/varscoper4/**"/>
+				<exclude name="**/qpscanner/**"/>
+				<exclude name="**/colddoc/**"/>
+				<exclude name="**/snapshots/**"/>
 			</fileset>
 		</copy>
 		<echo>Done copying files.</echo>
 	</target>
 	
+	<!--
+		=================================
+			Target: syntax.copy.jenkins
+			Copying files for compile test
+		=================================
+	-->
+	<target name="syntax.copy.jenkins" depends="init,clean.buildfolder" if="jenkins_workspace">
+		<echo>Copying from ${jenkins_workspace}</echo>
+		<copy todir="${filePathToBuildFolder}" >  
+			<fileset dir="${jenkins_workspace}">
+				<include name="**/*.cfm"/>
+				<include name="**/*.cfml"/>
+				<include name="**/*.cfc"/>
+				<exclude name="**/mxunit/**"/>
+				<exclude name="**/plugins/**"/>
+				<exclude name="**/CFIDE/**"/>
+				<exclude name="**/WEB-INF/**"/>
+				<exclude name="**/META-INF/**"/>
+				<exclude name="**/varscoper4/**"/>
+				<exclude name="**/qpscanner/**"/>
+				<exclude name="**/colddoc/**"/>
+				<exclude name="**/snapshots/**"/>
+			</fileset>
+		</copy>
+		<echo>Done copying files.</echo>
+	</target>
+
 	<!--
 		=================================
 			Target: upload
@@ -133,23 +202,25 @@
 	<!--
 		=================================
 			Target: genApiDocs
+			Invokes ColdDoc
 		=================================
 	-->
 	<target name="genApiDocs" depends="init">
-		<echo>generating docs</echo>
+		<get dest="./${buildfolder}/genApiDocs.${DSTAMP}${TSTAMP}.csv" 
+					 src="${colddoc.baseurl}run.cfm" />
 	</target>
 
 	<!--
 		=================================
-			Target: compile.acf
+			Target: syntax.acf
 			Compiles the ColdFusion files for any syntax errors
 		=================================
+		 
 	-->
-    <target name="compile.acf" depends="compile.copy">
+    <target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
     	<tstamp/>
-    			
         <echo>Starting Syntax check...</echo>
-        <java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt">
+        <java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
             <classpath>
                 <pathelement location="${jrun.jar}"/>
                 <pathelement location="${coldfusion.bootstrap.jar}"/>
@@ -161,19 +232,17 @@
             
             <arg line=" Compiler "/>
             <arg line=" -webroot ${webroot} "/>
-            <arg line=" ${webroot}/compile_check" />
+            <arg line=" ${filePathToBuildFolder}" />
         </java>
     	
     	<!--need to check log for failures-->
-    	<loadfile srcfile="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt" property="src.file.cferrors" >
+    	<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors" >
 	    	<filterchain>
 	    		<LineContainsRegExp>
 	    			<regexp pattern="^Error*"/>
 	    		</LineContainsRegExp>
 	    	</filterchain>
 	    </loadfile>
-    	
-    	<delete file="${jenkins_workspace}${DSTAMP}${TSTAMP}compileresults.txt"/>
     	
     	<property name="src.file.cferrors" value="No Syntax Errors"/>
     	
@@ -197,5 +266,90 @@
 	<target name="jenkinsTest">
 		<echo>Full speed ahead Scotty!</echo>
 	</target>
+
+	<!--
+		=================================
+			Target: test-qpscanner
+			Test for query params
+		=================================
+	-->
+	<target name="test-qpscanner" depends="init,syntax.copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
+		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
+			<prop name="action" value="scan"/>
+			<prop name="outputFormat" value="xml"/>
+			<prop name="config" value="${qpscanner.config}"/>
+			<prop name="profile" value="${qpscanner.profile}"/>
+			<prop name="startingDir" value="${qpscanner.startingDir}"/>
+			<prop name="recurse" value="${qpscanner.recurse}"/>
+			<prop name="exclusions" value="${qpscanner.exclusions}"/>
+			<prop name="scanOrderBy" value="${qpscanner.scanOrderBy}"/>
+			<prop name="scanQoQ" value="${qpscanner.scanQoQ}"/>
+			<prop name="scanBuiltinFunc" value="${qpscanner.scanBuiltinFunc}"/>
+			<prop name="showScopeInfo" value="${qpscanner.showScopeInfo}"/>
+			<prop name="highlightClientScopes" value="${qpscanner.highlightClientScopes}"/>
+			<prop name="clientScopes" value="${qpscanner.clientScopes}"/>
+		</post>
+		<xmlproperty file="${qpscanner.results}"/>
+		<echo message="Scanned ${qpscanner.info.count.files} files containing ${qpscanner.info.count.queries} queries."/>
+		<echo message="Found ${qpscanner.info.count.alerts} alerts."/>
+		
+		<delete file="${qpscanner.results}"/>
+		
+		<fail message="QueryParam Scanner alerts present.">
+			<condition>
+				<and>
+					<istrue value="${qpscanner.failOnAlertsFound}"/>
+					<not>
+						<equals arg1="${qpscanner.info.count.alerts}" arg2="0"/>
+					</not>
+				</and>
+			</condition>
+		</fail>
+	</target>
 	
+	
+	<!--
+			=================================
+				Target: runLocalChecks
+				Runs checks locally
+			=================================
+		-->	
+	<target name="runLocalChecks" depends="syntax.acf,runVarScoper,test-qpscanner"/>
+			
+	<!--
+		=================================
+			Target: runVarScoper
+			Test var scoped variables
+		=================================
+	-->	
+	<target name="runVarScoper" depends="init,syntax.copy">
+		<!-- note: this target should fail when running as default (test case has var scope violations-->
+		
+		<echo>Starting VarScoper check</echo>
+		
+		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
+		<get dest="${varscoper.results}" 
+			 src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${filePathToBuildFolder}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
+		
+		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">  
+			<filterchain>
+				<headfilter skip="1"/>
+				<trim/>
+			</filterchain>
+		</loadfile>
+		
+		<!--
+		<property name="varscoper.csv" value="No VarScope Violations"/>
+		 -->	
+		
+		<echo>${varscoper.csv}</echo>
+		
+		<delete file="${varscoper.results}"/>
+		
+		<fail message="VarScope violations are found.">
+			<condition>
+				<isset property="varscoper.csv"/>
+			</condition>
+		</fail>
+	</target>	
 </project>
