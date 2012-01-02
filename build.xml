@@ -79,28 +79,6 @@
 
 	<!--
 		=================================
-			Target: clean.webserver
-			Cleans up un-needed files on webserver
-		=================================
-	-->
-	<target name="clean.webserver" depends="init">
-		<echo>Cleaning started</echo>
-		<delete dir="${webroot}">
-			<exclude name="**/CFIDE/**" />
-			<exclude name="**/WEB-INF/**" />
-			<exclude name="**/META-INF/**" />
-			<exclude name="**/varscoper4/**" />
-			<exclude name="**/qpscanner/**" />
-			<exclude name="**/colddoc/**" />
-			<exclude name="**/snapshots/**" />
-			<exclude name="**/.settings"/>
-			exclude name="**/.project"/>
-		</delete>
-		<echo>Clean-up done.</echo>
-	</target>
-
-	<!--
-		=================================
 			Target: clean.buildfolder
 			Cleans up un-needed files in build folder
 		=================================
