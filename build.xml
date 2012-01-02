@@ -350,7 +350,12 @@
 			</condition>
 		</fail>
 	</target>
+	<target name="syntax.openbd">
+		<echo>openbd syntax check</echo>
+	</target>
 	<target name="syntax.railo">
+		<echo>railo syntax check</echo>
+		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
 		<property name="build.cfc.url" value="http://${server.host}:${server.port.http}${war.contextpath}/_cfd_compile_temp/Build.cfc" />
 		<property name="compile.results.file" location="compile-results.txt" />
@@ -391,20 +396,20 @@
 			</xmltask>
 			<open-url url="${build.cfc.url}?method=show-results&amp;resultsfile=${compile.results.file}" />
 			<sleep seconds="3" />
-			<!-- remove the mappings now that they're compiled -->
-			<xmltask sourcebuffer="mappings.buff">
-				<call path="mappings/*">
-					<param name="virtual" path="@virtual" default="NONE" />
-					<param name="physical" path="@physical" default="NONE" />
-					<actions>
-						<railo-mapping-remove virtual="@{virtual}" />
-					</actions>
-				</call>
-			</xmltask>
-			<antcontrib:runtarget target="runwar.stop" />
-			<delete file="${war.target.dir}/Build.cfc" />
-			<delete dir="${war.target.dir}/_cfd_compile_temp" />
-			<railo-mapping-remove virtual="/_cfd_compile_temp" />
-		</sequential>
+		<xmltask sourcebuffer="mappings.buff">
+			<call path="mappings/*">
+				<param name="virtual" path="@virtual" default="NONE" />
+				<param name="physical" path="@physical" default="NONE" />
+				<actions>
+					<railo-mapping-remove virtual="@{virtual}" />
+				</actions>
+			</call>
+		</xmltask>
+		<antcontrib:runtarget target="runwar.stop" />
+		<delete file="${war.target.dir}/Build.cfc" />
+		<delete dir="${war.target.dir}/_cfd_compile_temp" />
+		<railo-mapping-remove virtual="/_cfd_compile_temp" />
+	</sequential>
+		-->
 	</target>
 </project>
