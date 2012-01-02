@@ -18,29 +18,6 @@
 
 		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
 
-		<!--ACF Compiler Arguments-->
-		<property name="acf.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
-		<property name="acf.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
-		<property name="acf.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
-		<property name="acf.compiler.classpath" value="${acf.compiler.libpath}/updates,${acf.compiler.libpath}" />
-		<property name="acf.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
-
-		<!-- Arguments for CFQueryParam checker -->
-		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
-		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
-		<property name="qpscanner.failOnAlertsFound" value="false" />
-		<property name="qpscanner.config" value="default" />
-		<property name="qpscanner.profile" value="default" />
-		<property name="qpscanner.recurse" value="true" />
-		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
-		<property name="qpscanner.scanOrderBy" value="false" />
-		<property name="qpscanner.scanQoQ" value="false" />
-		<property name="qpscanner.scanBuiltinFunc" value="false" />
-		<property name="qpscanner.showScopeInfo" value="false" />
-		<property name="qpscanner.highlightClientScopes" value="false" />
-		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
-		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
-
 		<!-- Arguments for ColdDoc -->
 		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
 		
@@ -75,28 +52,6 @@
 	-->
 	<target name="package" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
 		<echo>packaging stuff</echo>
-	</target>
-
-	<!--
-		=================================
-			Target: clean.webserver
-			Cleans up un-needed files on webserver
-		=================================
-	-->
-	<target name="clean.webserver" depends="init">
-		<echo>Cleaning started</echo>
-		<delete dir="${webroot}">
-			<exclude name="**/CFIDE/**" />
-			<exclude name="**/WEB-INF/**" />
-			<exclude name="**/META-INF/**" />
-			<exclude name="**/varscoper4/**" />
-			<exclude name="**/qpscanner/**" />
-			<exclude name="**/colddoc/**" />
-			<exclude name="**/snapshots/**" />
-			<exclude name="**/.settings"/>
-			exclude name="**/.project"/>
-		</delete>
-		<echo>Clean-up done.</echo>
 	</target>
 
 	<!--
@@ -258,6 +213,21 @@
 		=================================
 	-->
 	<target name="runVarScoper" depends="init,syntax.copy">
+		<!-- Arguments for CFQueryParam checker -->
+		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
+		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
+		<property name="qpscanner.failOnAlertsFound" value="false" />
+		<property name="qpscanner.config" value="default" />
+		<property name="qpscanner.profile" value="default" />
+		<property name="qpscanner.recurse" value="true" />
+		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
+		<property name="qpscanner.scanOrderBy" value="false" />
+		<property name="qpscanner.scanQoQ" value="false" />
+		<property name="qpscanner.scanBuiltinFunc" value="false" />
+		<property name="qpscanner.showScopeInfo" value="false" />
+		<property name="qpscanner.highlightClientScopes" value="false" />
+		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
+		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
 		<echo>Starting VarScoper check</echo>
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
@@ -364,21 +334,28 @@
 	-->
 	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
 		<tstamp />
+
+		<!--ACF Compiler Arguments-->
+		<property name="coldfusion.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
+		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
+		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
+		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
+		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
 		<mkdir dir="${workspace}/${project}/${buildfolder}" />
 		<echo>Starting Syntax check...</echo>
-		<java classname="acf.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${acf.compiler.syntaxresults}">
+		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
 			<classpath>
 				<pathelement location="${jrun.jar}" />
-				<pathelement location="${acf.bootstrap.jar}" />
-				<pathelement location="${acf.cfx.jar}" />
+				<pathelement location="${coldfusion.bootstrap.jar}" />
+				<pathelement location="${coldfusion.cfx.jar}" />
 			</classpath>
-			<sysproperty key=" acf.classPath" value="${acf.compiler.classpath}" />
-			<sysproperty key=" acf.libPath" value="${acf.compiler.libpath}" />
+			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
+			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
 			<arg line=" Compiler " />
 			<arg line=" -webroot ${webroot} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
-		<loadfile srcfile="${acf.compiler.syntaxresults}" property="src.file.cferrors">
+		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
 			<filterchain>
 				<LineContainsRegExp>
 					<regexp pattern="^Error*" />
@@ -388,7 +365,6 @@
 		<property name="src.file.cferrors" value="No Syntax Errors" />
 		<echo>${src.file.cferrors}</echo>
 		<echo>Syntax check complete.</echo>
-		<delete dir="${workspace}/${project}/${buildfolder}" />
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
@@ -404,19 +380,19 @@
 	-->
 	<target name="syntax.check" depends="init">
 		<if>
-			<isset property="cfmlengine.acf" />
+			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
 				<antcall target="syntax.acf" />
 			</then>
 		</if>
 		<if>
-			<isset property="cfmlengine.railo" />
+			<equals arg1="${cfmlengine.railo}" arg2="true"/>
 			<then>
 				<antcall target="syntax.railo" />
 			</then>
 		</if>
 		<if>
-			<isset property="cfmlengine.openbd" />
+			<equals arg1="${cfmlengine.openbd}" arg2="true"/>
 			<then>
 				<antcall target="syntax.openbd" />
 			</then>
