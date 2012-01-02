@@ -313,7 +313,7 @@
 			Runs checks locally
 		=================================
 	-->
-	<target name="runLocalChecks" depends="syntax.acf,runVarScoper,test-qpscanner" />
+	<target name="runOnlyChecks" depends="syntax.acf,runVarScoper,test-qpscanner" />
 
 	<!--
 		=================================

@@ -1,7 +1,7 @@
 # readme
 
 ## What is Cloudy With A Chance Of Tests?
-Cloudy With A Chance Of Tests is a pared down ant build.xml. It should be able to be used without any CFML code changes to your code base and a few changes to build.properties to match your environment. It can be used for Continuous Integration with ColdFusion (without or with unit tests). A syntax and other specific CFML checks will occur setting the stage for more unit testing and other progressions in the build.xml and your code base.
+Cloudy With A Chance Of Tests is a pared down ant build.xml. It should be able to be used without any CFML code changes to your code base and a few changes to build.properties to match your environment. It can be used for Continuous Integration with ColdFusion (without or with unit tests). A syntax and other specific CFML checks will occur setting the stage for more unit testing and other progressions in the build.xml and your code base. Some targets in the build.xml are purposely left blank for place holders.
 
 ## Installation
 This build script is decoupled from the environment you can execute it in the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
