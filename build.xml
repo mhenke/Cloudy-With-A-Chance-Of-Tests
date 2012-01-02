@@ -18,13 +18,12 @@
 
 		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
 
-		<property name="coldfusion.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
-		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
-
-		<!--Compiler Arguments-->
-		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
-		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<!--ACF Compiler Arguments-->
+		<property name="acf.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
+		<property name="acf.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
+		<property name="acf.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
+		<property name="acf.compiler.classpath" value="${acf.compiler.libpath}/updates,${acf.compiler.libpath}" />
+		<property name="acf.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
 
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
@@ -32,7 +31,6 @@
 		<property name="qpscanner.failOnAlertsFound" value="false" />
 		<property name="qpscanner.config" value="default" />
 		<property name="qpscanner.profile" value="default" />
-
 		<property name="qpscanner.recurse" value="true" />
 		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
 		<property name="qpscanner.scanOrderBy" value="false" />
@@ -43,8 +41,10 @@
 		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
 		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
 
+		<!-- Arguments for ColdDoc -->
 		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-
+		
+		<!-- Arguments for VarScoper checker -->
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
 		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
@@ -108,20 +108,6 @@
 	<target name="clean.buildfolder">
 		<echo>Cleaning started</echo>
 		<delete dir="${webroot}/${project}/${buildfolder}" />
-		<echo>Clean-up done.</echo>
-	</target>
-
-	<!--
-		=================================
-			Target: clean.pre
-			Cleans up un-needed files in jenkins workspace
-		=================================
-	-->
-	<target name="clean.pre" depends="init">
-		<echo>Cleaning started</echo>
-		<delete dir="${workspace}">
-			<exclude name="**/build.properties" />
-		</delete>
 		<echo>Clean-up done.</echo>
 	</target>
 
@@ -389,22 +375,22 @@
 		<tstamp />
 		<mkdir dir="${workspace}/${project}/${buildfolder}" />
 		<echo>Starting Syntax check...</echo>
-		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
+		<java classname="acf.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${acf.compiler.syntaxresults}">
 			<classpath>
 				<pathelement location="${jrun.jar}" />
-				<pathelement location="${coldfusion.bootstrap.jar}" />
-				<pathelement location="${coldfusion.cfx.jar}" />
+				<pathelement location="${acf.bootstrap.jar}" />
+				<pathelement location="${acf.cfx.jar}" />
 			</classpath>
 
-			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
-			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
+			<sysproperty key=" acf.classPath" value="${acf.compiler.classpath}" />
+			<sysproperty key=" acf.libPath" value="${acf.compiler.libpath}" />
 
 			<arg line=" Compiler " />
 			<arg line=" -webroot ${webroot} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
 
-		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
+		<loadfile srcfile="${acf.compiler.syntaxresults}" property="src.file.cferrors">
 			<filterchain>
 				<LineContainsRegExp>
 					<regexp pattern="^Error*" />
