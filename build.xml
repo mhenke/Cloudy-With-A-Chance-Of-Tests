@@ -214,7 +214,6 @@
 			Target: syntax.acf
 			Compiles the ColdFusion files for any syntax errors
 		=================================
-		 
 	-->
 	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
 		<tstamp />
@@ -235,7 +234,6 @@
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
 
-		<!--need to check log for failures-->
 		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
 			<filterchain>
 				<LineContainsRegExp>
