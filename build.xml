@@ -18,19 +18,14 @@
 
 		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
 
-		<!-- Arguments for ColdDoc -->
-		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-		
-		<!-- Arguments for VarScoper checker -->
-		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
-		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
-		<property name="varscoper.recursiveDirectory" value="true" />
+		<path id="project.classpath">
+			<fileset dir="lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="project.classpath" />
+		<taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpathref="project.classpath" />
 
-		<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-			<classpath>
-				<pathelement location="lib/ant-contrib-1.0b3.jar" />
-			</classpath>
-		</taskdef>
 	</target>
 
 	<!--
@@ -147,6 +142,7 @@
 		=================================
 	-->
 	<target name="genApiDocs" depends="init">
+		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
 		<get dest="./${buildfolder}/genApiDocs.${DSTAMP}${TSTAMP}.csv" src="${colddoc.baseurl}run.cfm" />
 	</target>
 
@@ -159,6 +155,47 @@
 	<target name="jenkinsTest">
 		<echo>Full speed ahead Scotty!</echo>
 	</target>
+	
+	<!--
+		=================================
+			Target: runTests
+			Runs the MXUnit tests on MXUnit
+		=================================
+	-->
+	<target name="runUnitTests" depends="init">
+		<mkdir dir="${test.output.xml}/unit" />
+		<runTestDirectory directoryName="unit" excludes=""/>
+	</target>
+	
+	<target name="runUITests" depends="init">
+		<mkdir dir="${test.output.xml}/UI" />
+		<runTestDirectory directoryName="UI" excludes=""/>		
+	</target>
+	
+	<target name="runAllTests" description="Make output directories and run the MXUnit task" depends="init,clean,runUnitTests,runUITests">
+		<!-- generate pretty reports -->
+		<antcall target="junitreport" />
+		<fail if="tests.bombed" message="Failing the build due to test failures"/>
+	</target>
+
+	<target name="junitreport" depends="init" description="Runs the report without running the tests">
+		<junitreport todir="${test.junitoutput}">
+			<fileset dir="${test.output.xml}">
+				<include name="*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.junitoutput}" />
+		</junitreport>
+	</target>
+	
+	<macrodef name="runTestDirectory">
+		<attribute name="directoryName"/>
+		<attribute name="excludes" default=""/>
+		<sequential>
+			<mxunittask server="${test.server}" port="${test.serverport}" defaultrunner="${test.runner}" outputdir="${test.output.xml}/@{directoryName}" verbose="true" failureproperty="tests.bombed" errorproperty="tests.bombed">
+				<directory path="${test.dir.location}/@{directoryName}" recurse="true" packageName="${test.cfcpath}.@{directoryName}" componentPath="${test.cfcpath}.@{directoryName}" excludes="@{excludes}" />
+			</mxunittask>
+		</sequential>
+	</macrodef>
 
 	<!--
 		=================================
@@ -167,6 +204,9 @@
 		=================================
 	-->
 	<target name="test-qpscanner" depends="init,syntax.copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
+		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
+		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
+		<property name="varscoper.recursiveDirectory" value="true" />
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
