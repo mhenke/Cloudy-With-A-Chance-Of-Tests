@@ -219,6 +219,7 @@
 	-->
     <target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
     	<tstamp/>
+    	<mkdir dir="${workspace}/${project}/${buildfolder}"/>
         <echo>Starting Syntax check...</echo>
         <java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
             <classpath>
