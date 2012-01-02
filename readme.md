@@ -10,9 +10,13 @@ Please add the build.xml to your source control system in your top level folder 
 
 Add the lib folder with the jar at the top level of the project. 
 
-To run the VarScope and QueryParam check, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
+To run the VarScope, QueryParam, and ColdDoc, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
+
 * http://varscoper.riaforge.org/
+
 * http://qpscanner.riaforge.org/
+
+* http://colddoc.riaforge.org/
 
 ## License
 
