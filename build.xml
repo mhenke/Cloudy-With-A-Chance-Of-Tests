@@ -18,13 +18,12 @@
 
 		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
 
-		<property name="coldfusion.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
-		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
-
-		<!--Compiler Arguments-->
-		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
-		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<!--ACF Compiler Arguments-->
+		<property name="acf.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
+		<property name="acf.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
+		<property name="acf.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
+		<property name="acf.compiler.classpath" value="${acf.compiler.libpath}/updates,${acf.compiler.libpath}" />
+		<property name="acf.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
 
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
@@ -32,7 +31,6 @@
 		<property name="qpscanner.failOnAlertsFound" value="false" />
 		<property name="qpscanner.config" value="default" />
 		<property name="qpscanner.profile" value="default" />
-
 		<property name="qpscanner.recurse" value="true" />
 		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
 		<property name="qpscanner.scanOrderBy" value="false" />
@@ -43,8 +41,10 @@
 		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
 		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
 
+		<!-- Arguments for ColdDoc -->
 		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-
+		
+		<!-- Arguments for VarScoper checker -->
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
 		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
@@ -65,7 +65,7 @@
 			 - uploads
 		=================================
 	-->
-	<target name="publish" depends="init,syntax.acf,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
+	<target name="publish" depends="init,syntax.check,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -108,20 +108,6 @@
 	<target name="clean.buildfolder">
 		<echo>Cleaning started</echo>
 		<delete dir="${webroot}/${project}/${buildfolder}" />
-		<echo>Clean-up done.</echo>
-	</target>
-
-	<!--
-		=================================
-			Target: clean.pre
-			Cleans up un-needed files in jenkins workspace
-		=================================
-	-->
-	<target name="clean.pre" depends="init">
-		<echo>Cleaning started</echo>
-		<delete dir="${workspace}">
-			<exclude name="**/build.properties" />
-		</delete>
 		<echo>Clean-up done.</echo>
 	</target>
 
@@ -211,54 +197,6 @@
 
 	<!--
 		=================================
-			Target: syntax.acf
-			Compiles the ColdFusion files for any syntax errors
-		=================================
-	-->
-	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
-		<tstamp />
-		<mkdir dir="${workspace}/${project}/${buildfolder}" />
-		<echo>Starting Syntax check...</echo>
-		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
-			<classpath>
-				<pathelement location="${jrun.jar}" />
-				<pathelement location="${coldfusion.bootstrap.jar}" />
-				<pathelement location="${coldfusion.cfx.jar}" />
-			</classpath>
-
-			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
-			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
-
-			<arg line=" Compiler " />
-			<arg line=" -webroot ${webroot} " />
-			<arg line=" ${filePathToBuildFolder}" />
-		</java>
-
-		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
-			<filterchain>
-				<LineContainsRegExp>
-					<regexp pattern="^Error*" />
-				</LineContainsRegExp>
-			</filterchain>
-		</loadfile>
-
-		<property name="src.file.cferrors" value="No Syntax Errors" />
-
-		<echo>${src.file.cferrors}</echo>
-
-		<echo>Syntax check complete.</echo>
-		
-		<delete dir="${workspace}/${project}/${buildfolder}" />
-
-		<fail>
-			<condition>
-				<equals arg1="${java.compilecheck}" arg2="1" />
-			</condition>
-		</fail>
-	</target>
-
-	<!--
-		=================================
 			Target: jenkinsTest
 			Test for Jenkins to run on initial setup
 		=================================
@@ -292,9 +230,7 @@
 		<xmlproperty file="${qpscanner.results}" />
 		<echo message="Scanned ${qpscanner.info.count.files} files containing ${qpscanner.info.count.queries} queries." />
 		<echo message="Found ${qpscanner.info.count.alerts} alerts." />
-
 		<delete file="${qpscanner.results}" />
-
 		<fail message="QueryParam Scanner alerts present.">
 			<condition>
 				<and>
@@ -309,11 +245,11 @@
 
 	<!--
 		=================================
-			Target: runLocalChecks
-			Runs checks locally
+			Target: runOnlyChecks
+			Runs only cfml checks like syntax, varscoper, and qpscanner
 		=================================
 	-->
-	<target name="runOnlyChecks" depends="syntax.acf,runVarScoper,test-qpscanner" />
+	<target name="runOnlyChecks" depends="syntax.check,runVarScoper,test-qpscanner" />
 
 	<!--
 		=================================
@@ -323,36 +259,43 @@
 	-->
 	<target name="runVarScoper" depends="init,syntax.copy">
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
-
 		<echo>Starting VarScoper check</echo>
-
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
 		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${filePathToBuildFolder}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
-
 		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">
 			<filterchain>
 				<headfilter skip="1" />
 				<trim />
 			</filterchain>
 		</loadfile>
-
-		<!--
 		<property name="varscoper.csv" value="No VarScope Violations"/>
-		 -->
-
 		<echo>${varscoper.csv}</echo>
-
 		<delete file="${varscoper.results}" />
-
 		<fail message="VarScope violations are found.">
 			<condition>
-				<isset property="varscoper.csv" />
+				<not>
+					<equals arg1="${varscoper.csv}" arg2="No VarScope Violations" />
+				</not>
 			</condition>
 		</fail>
 	</target>
+	
+	<!--
+		=================================
+			Target: syntax.openbd
+			Compiles the ColdFusion files for any OpenBD syntax errors
+		=================================
+	-->
 	<target name="syntax.openbd">
 		<echo>openbd syntax check</echo>
 	</target>
+	
+	<!--
+		=================================
+			Target: syntax.railo
+			Compiles the ColdFusion files for any Railo syntax errors
+		=================================
+	-->
 	<target name="syntax.railo">
 		<echo>railo syntax check</echo>
 		<!--
@@ -411,5 +354,72 @@
 		<railo-mapping-remove virtual="/_cfd_compile_temp" />
 	</sequential>
 		-->
+	</target>
+	
+	<!--
+		=================================
+			Target: syntax.acf
+			Compiles the ColdFusion files for any ACF syntax errors
+		=================================
+	-->
+	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
+		<tstamp />
+		<mkdir dir="${workspace}/${project}/${buildfolder}" />
+		<echo>Starting Syntax check...</echo>
+		<java classname="acf.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${acf.compiler.syntaxresults}">
+			<classpath>
+				<pathelement location="${jrun.jar}" />
+				<pathelement location="${acf.bootstrap.jar}" />
+				<pathelement location="${acf.cfx.jar}" />
+			</classpath>
+			<sysproperty key=" acf.classPath" value="${acf.compiler.classpath}" />
+			<sysproperty key=" acf.libPath" value="${acf.compiler.libpath}" />
+			<arg line=" Compiler " />
+			<arg line=" -webroot ${webroot} " />
+			<arg line=" ${filePathToBuildFolder}" />
+		</java>
+		<loadfile srcfile="${acf.compiler.syntaxresults}" property="src.file.cferrors">
+			<filterchain>
+				<LineContainsRegExp>
+					<regexp pattern="^Error*" />
+				</LineContainsRegExp>
+			</filterchain>
+		</loadfile>
+		<property name="src.file.cferrors" value="No Syntax Errors" />
+		<echo>${src.file.cferrors}</echo>
+		<echo>Syntax check complete.</echo>
+		<delete dir="${workspace}/${project}/${buildfolder}" />
+		<fail>
+			<condition>
+				<equals arg1="${java.compilecheck}" arg2="1" />
+			</condition>
+		</fail>
+	</target>
+	
+	<!--
+		=================================
+			Target: syntax.check
+			This is a check for any engine
+		=================================
+	-->
+	<target name="syntax.check" depends="init">
+		<if>
+			<isset property="cfmlengine.acf" />
+			<then>
+				<antcall target="syntax.acf" />
+			</then>
+		</if>
+		<if>
+			<isset property="cfmlengine.railo" />
+			<then>
+				<antcall target="syntax.railo" />
+			</then>
+		</if>
+		<if>
+			<isset property="cfmlengine.openbd" />
+			<then>
+				<antcall target="syntax.openbd" />
+			</then>
+		</if>
 	</target>
 </project>
