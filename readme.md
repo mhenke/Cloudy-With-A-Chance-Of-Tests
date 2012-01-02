@@ -6,7 +6,7 @@ Cloudy With A Chance Of Tests is a pared down ant build.xml. Some targets in the
 
 The build.xml should be able to be used without any CFML code changes to your code base and only a few changes to build.properties that match your environment. 
 
-This build.xml can be used for Continuous Integration with ColdFusion (without or with unit tests). A syntax and other specific CFML checks will occur setting the stage for more testing and other progressions in the build.xml and your code base.
+This build.xml can be used for Continuous Integration with ColdFusion (without or with more tests). A syntax and other specific CFML checks will occur setting the stage for more testing and other progressions in the build.xml and your code base.
 
 Have fun, this is a journey not a sprint. Introduce this easy step, sit back and wait till your chance to do more.
 
