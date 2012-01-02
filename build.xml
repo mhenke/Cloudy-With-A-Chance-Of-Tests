@@ -249,6 +249,8 @@
 		<echo>${src.file.cferrors}</echo>
 
 		<echo>Syntax check complete.</echo>
+		
+		<delete dir="${workspace}/${project}/${buildfolder}" />
 
 		<fail>
 			<condition>
