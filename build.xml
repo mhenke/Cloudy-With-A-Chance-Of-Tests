@@ -230,9 +230,7 @@
 		<xmlproperty file="${qpscanner.results}" />
 		<echo message="Scanned ${qpscanner.info.count.files} files containing ${qpscanner.info.count.queries} queries." />
 		<echo message="Found ${qpscanner.info.count.alerts} alerts." />
-
 		<delete file="${qpscanner.results}" />
-
 		<fail message="QueryParam Scanner alerts present.">
 			<condition>
 				<and>
@@ -261,30 +259,23 @@
 	-->
 	<target name="runVarScoper" depends="init,syntax.copy">
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
-
 		<echo>Starting VarScoper check</echo>
-
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
 		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${filePathToBuildFolder}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
-
 		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">
 			<filterchain>
 				<headfilter skip="1" />
 				<trim />
 			</filterchain>
 		</loadfile>
-
-		<!--
 		<property name="varscoper.csv" value="No VarScope Violations"/>
-		 -->
-
 		<echo>${varscoper.csv}</echo>
-
 		<delete file="${varscoper.results}" />
-
 		<fail message="VarScope violations are found.">
 			<condition>
-				<isset property="varscoper.csv" />
+				<not>
+					<equals arg1="${varscoper.csv}" arg2="No VarScope Violations" />
+				</not>
 			</condition>
 		</fail>
 	</target>
@@ -381,15 +372,12 @@
 				<pathelement location="${acf.bootstrap.jar}" />
 				<pathelement location="${acf.cfx.jar}" />
 			</classpath>
-
 			<sysproperty key=" acf.classPath" value="${acf.compiler.classpath}" />
 			<sysproperty key=" acf.libPath" value="${acf.compiler.libpath}" />
-
 			<arg line=" Compiler " />
 			<arg line=" -webroot ${webroot} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
-
 		<loadfile srcfile="${acf.compiler.syntaxresults}" property="src.file.cferrors">
 			<filterchain>
 				<LineContainsRegExp>
@@ -397,15 +385,10 @@
 				</LineContainsRegExp>
 			</filterchain>
 		</loadfile>
-
 		<property name="src.file.cferrors" value="No Syntax Errors" />
-
 		<echo>${src.file.cferrors}</echo>
-
 		<echo>Syntax check complete.</echo>
-		
 		<delete dir="${workspace}/${project}/${buildfolder}" />
-
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
