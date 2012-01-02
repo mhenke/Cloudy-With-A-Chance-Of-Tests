@@ -307,13 +307,12 @@
 		</fail>
 	</target>
 	
-	
 	<!--
-			=================================
-				Target: runLocalChecks
-				Runs checks locally
-			=================================
-		-->	
+		=================================
+			Target: runLocalChecks
+			Runs checks locally
+		=================================
+	-->	
 	<target name="runLocalChecks" depends="syntax.acf,runVarScoper,test-qpscanner"/>
 			
 	<!--
