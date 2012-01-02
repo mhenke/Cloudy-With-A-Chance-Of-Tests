@@ -276,7 +276,6 @@
 	-->
 	<target name="syntax.railo">
 		<echo>railo syntax check</echo>
-		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
 		<property name="build.cfc.url" value="http://${server.host}:${server.port.http}${war.contextpath}/_cfd_compile_temp/Build.cfc" />
 		<property name="compile.results.file" location="compile-results.txt" />
@@ -331,7 +330,6 @@
 		<delete dir="${war.target.dir}/_cfd_compile_temp" />
 		<railo-mapping-remove virtual="/_cfd_compile_temp" />
 	</sequential>
-		-->
 	</target>
 	
 	<!--
