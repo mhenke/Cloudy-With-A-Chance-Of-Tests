@@ -1,1 +1,3 @@
-This is for using Continuous Integration with ColdFusion without unit tests. A syntax check will occur setting the stage for more unit testing and other progressions in the build.xml. You will have to change some build.properties settings. 
+This is for using Continuous Integration with ColdFusion without unit tests. A syntax check will occur setting the stage for more unit testing and other progressions in the build.xml. You will have to change some build.properties settings.
+
+Thanks to @denstar @vitrix and @luismajano for proving me code.
