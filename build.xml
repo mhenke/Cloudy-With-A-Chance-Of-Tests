@@ -65,7 +65,7 @@
 			 - uploads
 		=================================
 	-->
-	<target name="publish" depends="init,syntax.acf,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
+	<target name="publish" depends="init,syntax.check,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -211,54 +211,6 @@
 
 	<!--
 		=================================
-			Target: syntax.acf
-			Compiles the ColdFusion files for any syntax errors
-		=================================
-	-->
-	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
-		<tstamp />
-		<mkdir dir="${workspace}/${project}/${buildfolder}" />
-		<echo>Starting Syntax check...</echo>
-		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
-			<classpath>
-				<pathelement location="${jrun.jar}" />
-				<pathelement location="${coldfusion.bootstrap.jar}" />
-				<pathelement location="${coldfusion.cfx.jar}" />
-			</classpath>
-
-			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
-			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
-
-			<arg line=" Compiler " />
-			<arg line=" -webroot ${webroot} " />
-			<arg line=" ${filePathToBuildFolder}" />
-		</java>
-
-		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
-			<filterchain>
-				<LineContainsRegExp>
-					<regexp pattern="^Error*" />
-				</LineContainsRegExp>
-			</filterchain>
-		</loadfile>
-
-		<property name="src.file.cferrors" value="No Syntax Errors" />
-
-		<echo>${src.file.cferrors}</echo>
-
-		<echo>Syntax check complete.</echo>
-		
-		<delete dir="${workspace}/${project}/${buildfolder}" />
-
-		<fail>
-			<condition>
-				<equals arg1="${java.compilecheck}" arg2="1" />
-			</condition>
-		</fail>
-	</target>
-
-	<!--
-		=================================
 			Target: jenkinsTest
 			Test for Jenkins to run on initial setup
 		=================================
@@ -309,11 +261,11 @@
 
 	<!--
 		=================================
-			Target: runLocalChecks
-			Runs checks locally
+			Target: runOnlyChecks
+			Runs only cfml checks like syntax, varscoper, and qpscanner
 		=================================
 	-->
-	<target name="runOnlyChecks" depends="syntax.acf,runVarScoper,test-qpscanner" />
+	<target name="runOnlyChecks" depends="syntax.check,runVarScoper,test-qpscanner" />
 
 	<!--
 		=================================
@@ -350,9 +302,23 @@
 			</condition>
 		</fail>
 	</target>
+	
+	<!--
+		=================================
+			Target: syntax.openbd
+			Compiles the ColdFusion files for any OpenBD syntax errors
+		=================================
+	-->
 	<target name="syntax.openbd">
 		<echo>openbd syntax check</echo>
 	</target>
+	
+	<!--
+		=================================
+			Target: syntax.railo
+			Compiles the ColdFusion files for any Railo syntax errors
+		=================================
+	-->
 	<target name="syntax.railo">
 		<echo>railo syntax check</echo>
 		<!--
@@ -411,5 +377,80 @@
 		<railo-mapping-remove virtual="/_cfd_compile_temp" />
 	</sequential>
 		-->
+	</target>
+	
+	<!--
+		=================================
+			Target: syntax.acf
+			Compiles the ColdFusion files for any ACF syntax errors
+		=================================
+	-->
+	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
+		<tstamp />
+		<mkdir dir="${workspace}/${project}/${buildfolder}" />
+		<echo>Starting Syntax check...</echo>
+		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
+			<classpath>
+				<pathelement location="${jrun.jar}" />
+				<pathelement location="${coldfusion.bootstrap.jar}" />
+				<pathelement location="${coldfusion.cfx.jar}" />
+			</classpath>
+
+			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
+			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
+
+			<arg line=" Compiler " />
+			<arg line=" -webroot ${webroot} " />
+			<arg line=" ${filePathToBuildFolder}" />
+		</java>
+
+		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
+			<filterchain>
+				<LineContainsRegExp>
+					<regexp pattern="^Error*" />
+				</LineContainsRegExp>
+			</filterchain>
+		</loadfile>
+
+		<property name="src.file.cferrors" value="No Syntax Errors" />
+
+		<echo>${src.file.cferrors}</echo>
+
+		<echo>Syntax check complete.</echo>
+		
+		<delete dir="${workspace}/${project}/${buildfolder}" />
+
+		<fail>
+			<condition>
+				<equals arg1="${java.compilecheck}" arg2="1" />
+			</condition>
+		</fail>
+	</target>
+	
+	<!--
+		=================================
+			Target: syntax.check
+			This is a check for any engine
+		=================================
+	-->
+	<target name="syntax.check" depends="init">
+		<if>
+			<isset property="cfmlengine.acf" />
+			<then>
+				<antcall target="syntax.acf" />
+			</then>
+		</if>
+		<if>
+			<isset property="cfmlengine.railo" />
+			<then>
+				<antcall target="syntax.railo" />
+			</then>
+		</if>
+		<if>
+			<isset property="cfmlengine.openbd" />
+			<then>
+				<antcall target="syntax.openbd" />
+			</then>
+		</if>
 	</target>
 </project>
