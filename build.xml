@@ -16,7 +16,7 @@
 		<!--specific build location variables-->
 		<property file="build.properties" />
 
-		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
+		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/${buildfolder}" />
 
 		<path id="project.classpath">
 			<fileset dir="lib">
@@ -57,7 +57,7 @@
 	-->
 	<target name="clean.buildfolder">
 		<echo>Cleaning started</echo>
-		<delete dir="${webroot}/${project}/${buildfolder}" />
+		<delete dir="${webroot}/${directoryName}/${buildfolder}" />
 		<echo>Clean-up done.</echo>
 	</target>
 
@@ -78,9 +78,9 @@
 		=================================
 	-->
 	<target name="syntax.copy" depends="init,clean.buildfolder" unless="jenkins_workspace">
-		<echo>Copying from ${workspace}/${project}</echo>
+		<echo>Copying from ${workspace}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
-			<fileset dir="${workspace}/${project}">
+			<fileset dir="${workspace}/${directoryName}">
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
@@ -380,8 +380,8 @@
 		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
-		<mkdir dir="${workspace}/${project}/${buildfolder}" />
+		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
 		<echo>Starting Syntax check...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
 			<classpath>
