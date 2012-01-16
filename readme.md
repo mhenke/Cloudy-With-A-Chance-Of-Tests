@@ -10,6 +10,12 @@ The build.xml should be able to be used without any CFML code changes to your co
 
 Have fun, this is a journey not a sprint. Introduce this easy step, sit back and wait till your opportunity to do more Continuous Integration.
 
+## Recorded Presentation, Slides, and Outline
+
+Recorded Presentation - ???
+Slides - ???
+Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/
+
 ## Installation
 
 This build script is decoupled from the environment you can execute it in the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
