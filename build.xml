@@ -292,6 +292,24 @@
 	
 	<!--
 		=================================
+			Target: cpd
+			Copy paste detector 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
+		=================================
+	-->
+	<target name="cpd" depends="init">
+		<!-- copy paste detector!! -->
+		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
+		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
+			<fileset dir="${filePathToBuildFolder}">
+			<include name="**/*.cf?"/>
+		</fileset>
+		</cpd>
+		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
+	</target>
+	
+	<!--
+		=================================
 			Target: syntax.openbd
 			Compiles the ColdFusion files for any OpenBD syntax errors
 		=================================
