@@ -302,8 +302,10 @@
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
 		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
 			<fileset dir="${filePathToBuildFolder}">
-			<include name="**/*.cf?"/>
-		</fileset>
+				<include name="**/*.cfm"/>
+				<include name="**/*.cfc"/>
+				<include name="**/*.cfml"/>
+			</fileset>
 		</cpd>
 		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
 	</target>
