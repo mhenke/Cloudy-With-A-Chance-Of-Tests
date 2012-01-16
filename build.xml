@@ -16,21 +16,16 @@
 		<!--specific build location variables-->
 		<property file="build.properties" />
 
-		<property name="filePathToBuildFolder" value="${webroot}/${project}/${buildfolder}" />
+		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/${buildfolder}" />
 
-		<!-- Arguments for ColdDoc -->
-		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-		
-		<!-- Arguments for VarScoper checker -->
-		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
-		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
-		<property name="varscoper.recursiveDirectory" value="true" />
+		<path id="project.classpath">
+			<fileset dir="lib">
+				<include name="**/*.jar" />
+			</fileset>
+		</path>
+		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="project.classpath" />
+		<taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpathref="project.classpath" />
 
-		<taskdef resource="net/sf/antcontrib/antcontrib.properties">
-			<classpath>
-				<pathelement location="lib/ant-contrib-1.0b3.jar" />
-			</classpath>
-		</taskdef>
 	</target>
 
 	<!--
@@ -62,7 +57,7 @@
 	-->
 	<target name="clean.buildfolder">
 		<echo>Cleaning started</echo>
-		<delete dir="${webroot}/${project}/${buildfolder}" />
+		<delete dir="${webroot}/${directoryName}/${buildfolder}" />
 		<echo>Clean-up done.</echo>
 	</target>
 
@@ -83,9 +78,9 @@
 		=================================
 	-->
 	<target name="syntax.copy" depends="init,clean.buildfolder" unless="jenkins_workspace">
-		<echo>Copying from ${workspace}/${project}</echo>
+		<echo>Copying from ${workspace}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
-			<fileset dir="${workspace}/${project}">
+			<fileset dir="${workspace}/${directoryName}">
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
@@ -147,6 +142,7 @@
 		=================================
 	-->
 	<target name="genApiDocs" depends="init">
+		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
 		<get dest="./${buildfolder}/genApiDocs.${DSTAMP}${TSTAMP}.csv" src="${colddoc.baseurl}run.cfm" />
 	</target>
 
@@ -159,6 +155,47 @@
 	<target name="jenkinsTest">
 		<echo>Full speed ahead Scotty!</echo>
 	</target>
+	
+	<!--
+		=================================
+			Target: runTests
+			Runs the MXUnit tests on MXUnit
+		=================================
+	-->
+	<target name="runUnitTests" depends="init">
+		<mkdir dir="${test.output.xml}/unit" />
+		<runTestDirectory directoryName="unit" excludes=""/>
+	</target>
+	
+	<target name="runUITests" depends="init">
+		<mkdir dir="${test.output.xml}/UI" />
+		<runTestDirectory directoryName="UI" excludes=""/>		
+	</target>
+	
+	<target name="runAllTests" description="Make output directories and run the MXUnit task" depends="init,clean,runUnitTests,runUITests">
+		<!-- generate pretty reports -->
+		<antcall target="junitreport" />
+		<fail if="tests.bombed" message="Failing the build due to test failures"/>
+	</target>
+
+	<target name="junitreport" depends="init" description="Runs the report without running the tests">
+		<junitreport todir="${test.junitoutput}">
+			<fileset dir="${test.output.xml}">
+				<include name="*.xml" />
+			</fileset>
+			<report format="frames" todir="${test.junitoutput}" />
+		</junitreport>
+	</target>
+	
+	<macrodef name="runTestDirectory">
+		<attribute name="directoryName"/>
+		<attribute name="excludes" default=""/>
+		<sequential>
+			<mxunittask server="${test.server}" port="${test.serverport}" defaultrunner="${test.runner}" outputdir="${test.output.xml}/@{directoryName}" verbose="true" failureproperty="tests.bombed" errorproperty="tests.bombed">
+				<directory path="${test.dir.location}/@{directoryName}" recurse="true" packageName="${test.cfcpath}.@{directoryName}" componentPath="${test.cfcpath}.@{directoryName}" excludes="@{excludes}" />
+			</mxunittask>
+		</sequential>
+	</macrodef>
 
 	<!--
 		=================================
@@ -167,6 +204,9 @@
 		=================================
 	-->
 	<target name="test-qpscanner" depends="init,syntax.copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
+		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
+		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
+		<property name="varscoper.recursiveDirectory" value="true" />
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
@@ -248,6 +288,24 @@
 				</not>
 			</condition>
 		</fail>
+	</target>
+	
+	<!--
+		=================================
+			Target: cpd
+			Copy paste detector 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
+		=================================
+	-->
+	<target name="cpd" depends="init">
+		<!-- copy paste detector!! -->
+		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
+		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
+			<fileset dir="${filePathToBuildFolder}">
+			<include name="**/*.cf?"/>
+		</fileset>
+		</cpd>
+		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
 	</target>
 	
 	<!--
@@ -340,8 +398,8 @@
 		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${project}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
-		<mkdir dir="${workspace}/${project}/${buildfolder}" />
+		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
 		<echo>Starting Syntax check...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
 			<classpath>
