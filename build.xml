@@ -38,7 +38,6 @@
 	<!--
 		=================================
 			Target: package
-			Generates the zip archive
 		=================================
 	-->
 	<target name="package" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
@@ -128,8 +127,7 @@
 		=================================
 	-->
 	<target name="documentation" depends="init">
-		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-		<get dest="./${buildfolder}/documentation.${DSTAMP}${TSTAMP}.csv" src="${colddoc.baseurl}run.cfm" />
+		<echo>documentation</echo>
 	</target>
 
 	<!--
