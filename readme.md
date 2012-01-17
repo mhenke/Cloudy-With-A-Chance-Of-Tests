@@ -20,7 +20,7 @@ Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63c
 
 ## Installation
 
-This build script is decoupled from the environment you can execute it in the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
+This build script is decoupled from the environment you can execute it in. You can use the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
 
 1) Please add the build.xml to your source control system in your top level folder and ignore the build.properties. 
 
@@ -51,7 +51,3 @@ Please add yourself if you help:
 ## Git Workflow for Contributors
 
 This project uses the excellent [Git Workflow series](http://www.silverwareconsulting.com/index.cfm/Git-Workflow) by [Bob Silverburg](https://github.com/bobsilverberg/) for contributions.
-
-## Dealing with line endings
-
-Before contributing, please read this [http://help.github.com/dealing-with-lineendings/](http://help.github.com/dealing-with-lineendings/)
