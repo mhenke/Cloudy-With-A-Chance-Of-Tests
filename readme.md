@@ -13,24 +13,26 @@ Have fun, this is a journey not a sprint. Introduce this easy step, sit back and
 ## Recorded Presentation, Slides, and Outline
 
 Recorded Presentation - ???
+
 Slides - ???
+
 Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/
 
 ## Installation
 
 This build script is decoupled from the environment you can execute it in the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
 
-Please add the build.xml to your source control system in your top level folder and ignore the build.properties. You will have to change some build.properties settings to match the environment it will run on. 
+1) Please add the build.xml to your source control system in your top level folder and ignore the build.properties. 
 
-Add the lib folder with the jar at the top level of the project. 
+2) You will have to change some build.properties settings to match the environment it will run on.
 
-To run the VarScope, QueryParam, and ColdDoc, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
+3) Add the lib folder with the jars at the top level of the project. 
+
+4) To run the VarScope and QueryParam, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
 
 * http://varscoper.riaforge.org/
 
 * http://qpscanner.riaforge.org/
-
-* http://colddoc.riaforge.org/
 
 ## License
 

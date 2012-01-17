@@ -132,11 +132,11 @@
 
 	<!--
 		=================================
-			Target: creating-database
+			Target: create-database
 			Compile and Rebuild Database
 		=================================
 	-->
-	<target name="creating-database">
+	<target name="create-database">
 		<echo>Compile and Rebuild Database</echo>
 	</target>
 	
