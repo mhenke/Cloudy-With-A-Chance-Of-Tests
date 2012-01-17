@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<project name="Rewrite Build" default="package" basedir=".">
+<project name="Rewrite Build" default="all" basedir=".">
 	<description>
-		Build file for syntax and other easy to implement coldfusion checks
+		Build file for compile and other easy to implement coldfusion checks
 	</description>
 
 	<!--
@@ -30,14 +30,10 @@
 
 	<!--
 		=================================
-			Target: publish
-			 - compiles
-			 - runs tests
-			 - packages
-			 - uploads
+			Target: all
 		=================================
 	-->
-	<target name="publish" depends="init,syntax.check,runVarScoper,test-qpscanner,package,upload,clean" description="--> packages into a zip and uploads to google code" />
+	<target name="all" depends="init,compile.check,inspection.varscoper,inspection.qpscanner,package,deploy,clean" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -51,11 +47,11 @@
 
 	<!--
 		=================================
-			Target: clean.buildfolder
+			Target: clean
 			Cleans up un-needed files in build folder
 		=================================
 	-->
-	<target name="clean.buildfolder">
+	<target name="clean">
 		<echo>Cleaning started</echo>
 		<delete dir="${webroot}/${directoryName}/${buildfolder}" />
 		<echo>Clean-up done.</echo>
@@ -63,21 +59,11 @@
 
 	<!--
 		=================================
-			Target: clean
-			Generates the zip archive
-		=================================
-	-->
-	<target name="clean" description="clean stuff">
-		<echo>clean stuff</echo>
-	</target>
-
-	<!--
-		=================================
-			Target: syntax.copy
+			Target: copy
 			Copying files for compile test
 		=================================
 	-->
-	<target name="syntax.copy" depends="init,clean.buildfolder" unless="jenkins_workspace">
+	<target name="copy" depends="init,clean" unless="jenkins_workspace">
 		<echo>Copying from ${workspace}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
 			<fileset dir="${workspace}/${directoryName}">
@@ -100,11 +86,11 @@
 
 	<!--
 		=================================
-			Target: syntax.copy.jenkins
+			Target: copy.jenkins
 			Copying files for compile test
 		=================================
 	-->
-	<target name="syntax.copy.jenkins" depends="init,clean.buildfolder" if="jenkins_workspace">
+	<target name="copy.jenkins" depends="init,clean" if="jenkins_workspace">
 		<echo>Copying from ${jenkins_workspace}</echo>
 		<copy todir="${filePathToBuildFolder}">
 			<fileset dir="${jenkins_workspace}">
@@ -127,83 +113,62 @@
 
 	<!--
 		=================================
-			Target: upload
-			Uploads the release zip to the Google Code site
+			Target: deploy
+			deploy
 		=================================
 	-->
-	<target name="upload">
-		<echo>uploading stuff</echo>
+	<target name="deploy">
+		<echo>deploy</echo>
 	</target>
 
 	<!--
 		=================================
-			Target: genApiDocs
-			Invokes ColdDoc
+			Target: documentation
+			Creates documentation
 		=================================
 	-->
-	<target name="genApiDocs" depends="init">
+	<target name="documentation" depends="init">
 		<property name="colddoc.baseurl" value="${webapp.server}/colddoc/" />
-		<get dest="./${buildfolder}/genApiDocs.${DSTAMP}${TSTAMP}.csv" src="${colddoc.baseurl}run.cfm" />
+		<get dest="./${buildfolder}/documentation.${DSTAMP}${TSTAMP}.csv" src="${colddoc.baseurl}run.cfm" />
 	</target>
 
 	<!--
 		=================================
-			Target: jenkinsTest
-			Test for Jenkins to run on initial setup
+			Target: creating-database
+			Compile and Rebuild Database
 		=================================
 	-->
-	<target name="jenkinsTest">
-		<echo>Full speed ahead Scotty!</echo>
+	<target name="creating-database">
+		<echo>Compile and Rebuild Database</echo>
 	</target>
 	
 	<!--
 		=================================
-			Target: runTests
-			Runs the MXUnit tests on MXUnit
+			Target: testing.mxunit
+			Runs the MXUnit tests
 		=================================
 	-->
-	<target name="runUnitTests" depends="init">
-		<mkdir dir="${test.output.xml}/unit" />
-		<runTestDirectory directoryName="unit" excludes=""/>
+	<target name="testing.mxunit" depends="init">
+		<echo>unit testing</echo>
 	</target>
 	
-	<target name="runUITests" depends="init">
-		<mkdir dir="${test.output.xml}/UI" />
-		<runTestDirectory directoryName="UI" excludes=""/>		
-	</target>
-	
-	<target name="runAllTests" description="Make output directories and run the MXUnit task" depends="init,clean,runUnitTests,runUITests">
-		<!-- generate pretty reports -->
-		<antcall target="junitreport" />
-		<fail if="tests.bombed" message="Failing the build due to test failures"/>
-	</target>
-
-	<target name="junitreport" depends="init" description="Runs the report without running the tests">
-		<junitreport todir="${test.junitoutput}">
-			<fileset dir="${test.output.xml}">
-				<include name="*.xml" />
-			</fileset>
-			<report format="frames" todir="${test.junitoutput}" />
-		</junitreport>
-	</target>
-	
-	<macrodef name="runTestDirectory">
-		<attribute name="directoryName"/>
-		<attribute name="excludes" default=""/>
-		<sequential>
-			<mxunittask server="${test.server}" port="${test.serverport}" defaultrunner="${test.runner}" outputdir="${test.output.xml}/@{directoryName}" verbose="true" failureproperty="tests.bombed" errorproperty="tests.bombed">
-				<directory path="${test.dir.location}/@{directoryName}" recurse="true" packageName="${test.cfcpath}.@{directoryName}" componentPath="${test.cfcpath}.@{directoryName}" excludes="@{excludes}" />
-			</mxunittask>
-		</sequential>
-	</macrodef>
-
 	<!--
 		=================================
-			Target: test-qpscanner
+			Target: testing.selenium
+			Runs the Selenium tests
+		=================================
+	-->
+	<target name="testing.selenium" depends="init">
+		<echo>acceptance testing</echo>	
+	</target>
+	
+	<!--
+		=================================
+			Target: inspection.qpscanner
 			Test for query params
 		=================================
 	-->
-	<target name="test-qpscanner" depends="init,syntax.copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
+	<target name="inspection.qpscanner" depends="init,copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
 		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
@@ -240,19 +205,11 @@
 
 	<!--
 		=================================
-			Target: runOnlyChecks
-			Runs only cfml checks like syntax, varscoper, and qpscanner
-		=================================
-	-->
-	<target name="runOnlyChecks" depends="syntax.check,runVarScoper,test-qpscanner" />
-
-	<!--
-		=================================
-			Target: runVarScoper
+			Target: inspection.varscoper
 			Test var scoped variables
 		=================================
 	-->
-	<target name="runVarScoper" depends="init,syntax.copy">
+	<target name="inspection.varscoper" depends="init,copy">
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
 		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
@@ -292,12 +249,12 @@
 	
 	<!--
 		=================================
-			Target: cpd
+			Target: inspection.cpd
 			Copy paste detector 
 			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
-	<target name="cpd" depends="init">
+	<target name="inspection.cpd" depends="init">
 		<!-- copy paste detector!! -->
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
 		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
@@ -312,22 +269,22 @@
 	
 	<!--
 		=================================
-			Target: syntax.openbd
-			Compiles the ColdFusion files for any OpenBD syntax errors
+			Target: compile.openbd
+			Compiles the ColdFusion files for any OpenBD compile errors
 		=================================
 	-->
-	<target name="syntax.openbd">
-		<echo>openbd syntax check</echo>
+	<target name="compile.openbd">
+		<echo>openbd compile check</echo>
 	</target>
 	
 	<!--
 		=================================
-			Target: syntax.railo
-			Compiles the ColdFusion files for any Railo syntax errors
+			Target: compile.railo
+			Compiles the ColdFusion files for any Railo compile errors
 		=================================
 	-->
-	<target name="syntax.railo">
-		<echo>railo syntax check</echo>
+	<target name="compile.railo">
+		<echo>railo compile check</echo>
 		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
 		<property name="build.cfc.url" value="http://${server.host}:${server.port.http}${war.contextpath}/_cfd_compile_temp/Build.cfc" />
@@ -388,11 +345,11 @@
 	
 	<!--
 		=================================
-			Target: syntax.acf
-			Compiles the ColdFusion files for any ACF syntax errors
+			Target: compile.acf
+			Compiles the ColdFusion files for any ACF compile errors
 		=================================
 	-->
-	<target name="syntax.acf" depends="init,syntax.copy,syntax.copy.jenkins">
+	<target name="compile.acf" depends="init,copy,copy.jenkins">
 		<tstamp />
 
 		<!--ACF Compiler Arguments-->
@@ -400,10 +357,10 @@
 		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.syntaxresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<property name="coldfusion.compiler.compileresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
 		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
-		<echo>Starting Syntax check...</echo>
-		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.syntaxresults}">
+		<echo>Starting compile check...</echo>
+		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
 				<pathelement location="${jrun.jar}" />
 				<pathelement location="${coldfusion.bootstrap.jar}" />
@@ -415,16 +372,16 @@
 			<arg line=" -webroot ${webroot} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
-		<loadfile srcfile="${coldfusion.compiler.syntaxresults}" property="src.file.cferrors">
+		<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
 			<filterchain>
 				<LineContainsRegExp>
 					<regexp pattern="^Error*" />
 				</LineContainsRegExp>
 			</filterchain>
 		</loadfile>
-		<property name="src.file.cferrors" value="No Syntax Errors" />
+		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
-		<echo>Syntax check complete.</echo>
+		<echo>compile check complete.</echo>
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
@@ -434,27 +391,27 @@
 	
 	<!--
 		=================================
-			Target: syntax.check
+			Target: compile.check
 			This is a check for any engine
 		=================================
 	-->
-	<target name="syntax.check" depends="init">
+	<target name="compile.check" depends="init">
 		<if>
 			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
-				<antcall target="syntax.acf" />
+				<antcall target="compile.acf" />
 			</then>
 		</if>
 		<if>
 			<equals arg1="${cfmlengine.railo}" arg2="true"/>
 			<then>
-				<antcall target="syntax.railo" />
+				<antcall target="compile.railo" />
 			</then>
 		</if>
 		<if>
 			<equals arg1="${cfmlengine.openbd}" arg2="true"/>
 			<then>
-				<antcall target="syntax.openbd" />
+				<antcall target="compile.openbd" />
 			</then>
 		</if>
 	</target>
