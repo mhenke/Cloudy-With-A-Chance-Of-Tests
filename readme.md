@@ -32,6 +32,16 @@ This build script is decoupled from the environment you can execute it in. You c
 
 * http://qpscanner.riaforge.org/
 
+
+##Properties
+With Ant files you can define properties in the build.xml file itself. Of course, you can then define them in your build.properties file, but this means you have to check in things like passwords and what have you into your repository which is far from ideal. 
+In the article http://www.javaranch.com/build_properties.jsp you can see that there is yet another way. This is by adding a file in your home directory called [projectname].properties that will overwrite the settings, thus allowing you to have per user properties. 
+
+We have included this as part of this build template for you. Look in the init target for a bit more details. 
+
+You should also add entries for new properties you are defining so that the build will fail if it is not defined properly now iwht a good message. 
+
+
 ## License
 
 This is licensed under [Creative CommonsAttribution-Noncommercial-Share Alike 3.0](http://creativecommons.org/licenses/by-nc-sa/3.0/us/) except for third party software which retains their licenses. 
@@ -45,6 +55,8 @@ Please add yourself if you help:
 * @vitrix
 
 * @lmajano
+
+* @markdrew
 
 ## Git Workflow for Contributors
 

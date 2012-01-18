@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="Rewrite Build" default="all" basedir=".">
+<project name="CloudyBuild" default="all" basedir=".">
 	<description>
 		Build file for compile and other easy to implement coldfusion checks
 	</description>
@@ -14,7 +14,35 @@
 		<tstamp />
 
 		<!--specific build location variables-->
+		
+		<!-- let's load up a user's build file first, so they don't have to check in their 
+			 own properties into version control
+			 It will look for something like /Users/username/<ant.projectname>.properties, for example:
+			 	/Users/markdrew/CloudyBuild.properties 
+			 
+		--> 
+		<property file="${user.home}/${ant.project.name}.properties"/>
 		<property file="build.properties" />
+		
+		
+		<!-- 
+			make sure all the settings are defined *SOMEWHERE*, since comments and documentation are never read
+			 If you add a new variable that has to be set, add it in the lines below
+			 Read more about it here: http://www.javaranch.com/build_properties.jsp
+		 -->
+		<property name="prop.message" value="must be defined, preferably in build.properties or  ${user.home}/${ant.project.name}.properties (details at http://javaranch.com/props)"/>
+		<fail message="cfmlengine.railo ${prop.message}" unless="cfmlengine.railo"/>                                   
+		<fail message="cfmlengine.openbd ${prop.message}" unless="cfmlengine.openbd"/>
+		<fail message="cfmlengine.acf ${prop.message}" unless="cfmlengine.acf"/>
+		<fail message="directoryName ${prop.message}" unless="directoryName"/>
+		<fail message="workspace ${prop.message}" unless="workspace"/>
+		<fail message="buildfolder ${prop.message}" unless="buildfolder"/>
+		<fail message="webroot ${prop.message}" unless="webroot"/>
+		<fail message="jrun.jar ${prop.message}" unless="jrun.jar"/>
+		<fail message="webapp.server ${prop.message}" unless="webapp.server"/>
+		<fail message="qpscanner.startingDir ${prop.message}" unless="qpscanner.startingDir"/>
+		
+		
 
 		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/${buildfolder}" />
 
