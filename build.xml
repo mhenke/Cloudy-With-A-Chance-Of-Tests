@@ -197,6 +197,7 @@
 	-->
 	<target name="testing.selenium" depends="init">
 		<echo>acceptance testing</echo>	
+		<runTestDirectory directoryname="ui" />
 	</target>
 	
 	<!--
