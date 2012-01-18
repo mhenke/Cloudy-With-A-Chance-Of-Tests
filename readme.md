@@ -20,7 +20,7 @@ Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63c
 
 This build script is decoupled from the environment you can execute it in. You can use the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
 
-1) Please add the build.xml to your source control system in your top level folder and ignore the build.properties. 
+1) Please add the build.xml to your source control system in your top level folder and build.properties but ignore it from your scs. 
 
 2) You will have to change some build.properties settings to match the environment it will run on.
 
