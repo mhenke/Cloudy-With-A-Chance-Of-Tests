@@ -16,7 +16,7 @@ Recorded Presentation - ???
 
 Slides - ???
 
-Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/
+Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/edit
 
 ## Installation
 
