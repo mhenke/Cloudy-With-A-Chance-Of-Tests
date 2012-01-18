@@ -2,7 +2,7 @@
 
 ## What is Cloudy With A Chance Of Tests?
 
-Cloudy With A Chance Of Tests is a pared down ant build.xml. This build.xml can be used for Continuous Integration with ColdFusion (without or with more tests). A syntax and other specific CFML checks will occur setting the stage for more testing and other progressions in the build.xml and your code base.
+Cloudy With A Chance Of Tests is a pared down ant build.xml. This build.xml can be used for Continuous Integration with ColdFusion (with or without unit tests). A syntax and other specific CFML checks will occur setting the stage for more testing and other progressions in the build.xml and your code base.
 
 Some targets in the build.xml are purposely left blank for place holders. 
 
