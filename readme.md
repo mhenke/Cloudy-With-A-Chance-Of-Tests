@@ -41,6 +41,12 @@ We have included this as part of this build template for you. Look in the init t
 
 You should also add entries for new properties you are defining so that the build will fail if it is not defined properly now iwht a good message. 
 
+##MXUnit
+You can also add MXUnit tests and define where they are run from in the testing.mxunit target. 
+
+##Database deployments
+	TODO:Write Description of the sql/create and sql/update folders (hint: add sequentially named files to be run in order, like 0001.sql and 0002.sql)
+
 
 ## License
 
