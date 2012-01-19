@@ -228,7 +228,7 @@
 	-->
 	<target name="testing.mxunit" depends="init">
 		<echo>unit testing</echo>
-		#<runTestDirectory directoryname="unit" />
+		<!-- <runTestDirectory directoryname="unit" /> -->
 		<mxunittask server="${mxunit.server}"
 			defaultrunner="/mxunit/HttpAntRunner.cfc"
 			outputdir="${mxunit.output.dir}"
@@ -238,11 +238,36 @@
 			haltonerror="${mxunit.haltonerror}">
 			
 			<!-- now we add the actual tests to run
-			
 				<testcase name="unittests.TestVersions" packageName="unittests" />
 			-->		
 		</mxunittask>
 	</target>
+	
+	<macrodef name="runTestDirectory">
+		<attribute name="directoryName"/>
+		<attribute name="excludes" default=""/>
+		<sequential>
+			<delete dir="${test.output.xml}/@{directoryName}"/>
+			<mkdir dir="${test.output.xml}/@{directoryName}"/>
+			<mxunittask server="${test.server}" 
+				port="${test.serverport}" 
+				defaultrunner="${test.runner}" 
+				outputdir="${test.output.xml}/@{directoryName}" 
+				verbose="true" 
+				failureproperty="tests.bombed" 
+				errorproperty="tests.bombed">
+				<directory path="${test.dir.location}/@{directoryName}" 
+					recurse="true" 
+					packageName="${test.cfcpath}.@{directoryName}" 
+					componentPath="${test.cfcpath}.@{directoryName}" 
+					excludes="@{excludes}" />
+				
+				<!-- now we add the actual tests to run
+					<testcase name="unittests.TestVersions" packageName="unittests" />
+				-->	
+			</mxunittask>
+		</sequential>
+	</macrodef>
 	
 	
 	<!--
@@ -510,15 +535,4 @@
 		</if>
 	</target>
 
-	<macrodef name="runTestDirectory">
-		<attribute name="directoryName"/>
-		<attribute name="excludes" default=""/>
-		<sequential>
-			<delete dir="${test.output.xml}/@{directoryName}"/>
-			<mkdir dir="${test.output.xml}/@{directoryName}"/>
-			<mxunittask server="${test.server}" port="${test.serverport}" defaultrunner="${test.runner}" outputdir="${test.output.xml}/@{directoryName}" verbose="true" failureproperty="tests.bombed" errorproperty="tests.bombed">
-				<directory path="${test.dir.location}/@{directoryName}" recurse="true" packageName="${test.cfcpath}.@{directoryName}" componentPath="${test.cfcpath}.@{directoryName}" excludes="@{excludes}" />
-			</mxunittask>
-		</sequential>
-	</macrodef>
 </project>
