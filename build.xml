@@ -67,8 +67,8 @@
 		
 		
 		<!-- mxunit default properties -->
-		<property name="testing.mxunit.haltonfailure" value="false" />
-		<property name="testing.mxunit.haltonerror" value="false" />
+		<property name="testing.unit.haltonfailure" value="false" />
+		<property name="testing.unit.haltonerror" value="false" />
 		
 		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/tests/${buildfolder}" />
 
@@ -230,40 +230,26 @@
 	
 	<!--
 		=================================
-			Target: testing.mxunit
-			Runs the MXUnit tests
+			Target: testing.unit
+			Runs the unit tests
 		=================================
 	-->
-	<target name="testing.mxunit" depends="init">
+	<target name="testing.unit" depends="init">
 		<echo>unit testing</echo>
 		<runTestDirectory directoryname="unit" />
-		
-		<!--  
-		<mxunittask server="${mxunit.server}"
-			port="${mxunit.serverport}"
-			defaultrunner="${mxunit.runner}"
-			outputdir="${mxunit.output.xml}/@{directoryName}" 
-			verbose="true"
-			testResultsSummary="mxunit.summary"
-			haltonfailure="${mxunit.haltonfailure}"
-			haltonerror="${mxunit.haltonerror}">
-		
-		# now we add the actual tests to run
-		<testcase name="unittests.TestVersions" packageName="unittests" />
-		
-		</mxunittask>
-		 -->
+		<echo>unit testing done</echo>
 	</target>
 	
 	<!--
 		=================================
-			Target: testing.selenium
-			Runs the Selenium tests
+			Target: testing.acceptance
+			Runs the acceptance tests
 		=================================
 	-->
-	<target name="testing.selenium" depends="init">
+	<target name="testing.acceptance" depends="init">
 		<echo>acceptance testing</echo>	
 		<runTestDirectory directoryname="ui" />
+		<echo>acceptance testing done</echo>	
 	</target>
 	
 	<!--
@@ -358,7 +344,7 @@
 			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
-	<target name="inspection.cpd" depends="init">
+	<target name="inspection.cpd" depends="init,copy">
 		<!-- copy paste detector!! -->
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
 		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
