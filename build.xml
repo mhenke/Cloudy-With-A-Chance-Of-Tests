@@ -180,7 +180,7 @@
 		=================================
 	-->
 	<target name="database.create">
-		<echo>Compile and Rebuild Database</echo>
+		<echo>Run the create scripts in the sql/create/ folder</echo>
 		<sql
 			driver="${db.driver}"
 			classpath="${db.classpath}"
@@ -194,7 +194,21 @@
 			</path>
 		</sql>
 	</target>
-	
+	<target name="database.update">
+			<echo>Run the update scripts in the sql/update/ folder</echo>
+			<sql
+				driver="${db.driver}"
+				classpath="${db.classpath}"
+				url="${db.url}"
+				userid="${db.user}"
+				password="${db.password}">
+				<path>
+					<fileset dir="sql/update/">
+						<include name="*.sql"/>
+					</fileset>
+				</path>
+			</sql>
+		</target>
 	<!--
 		=================================
 			Target: testing.mxunit
