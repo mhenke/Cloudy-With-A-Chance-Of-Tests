@@ -28,7 +28,7 @@
 		<property name="test.mxunit.dir.location" location="${test.mxunit.dir.name}" />
 
 		<!-- what is the cfc dot-notation path to that directory, as ColdFusion sees it? -->
-		<property name="test.mxunit.cfcpath" value="${application.name}.${test.mxunit.dir.name}" />
+		<property name="test.mxunit.cfcpath" value="${directoryName}.${test.mxunit.dir.name}" />
 		
 		<!-- this is where the xml and html will live for the report generator and Jenkins -->
 		<property name="test.mxunit.output" location="${test.mxunit.dir.name}/testresults" />
@@ -70,7 +70,7 @@
 		<property name="testing.mxunit.haltonfailure" value="false" />
 		<property name="testing.mxunit.haltonerror" value="false" />
 		
-		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/${buildfolder}" />
+		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/tests/${buildfolder}" />
 
 		<path id="project.classpath">
 			<fileset dir="lib">
@@ -106,7 +106,7 @@
 	-->
 	<target name="clean">
 		<echo>Cleaning started</echo>
-		<delete dir="${webroot}/${directoryName}/${buildfolder}" />
+		<delete dir="${filePathToBuildFolder}" />
 		<echo>Clean-up done.</echo>
 	</target>
 

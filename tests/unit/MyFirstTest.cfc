@@ -59,6 +59,5 @@ component extends="mxunit.framework.TestCase"{
 		*/
 		assertEquals( fish, littlerFish );
 	}
-	
 
 }
