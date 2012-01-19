@@ -1,9 +1,10 @@
 settings.xml
-/cpd.raw
+cpd.raw
 CFIDE
 WEB-INF
 META-INF
 snapshots
+mxunit
 
 # Ignore all dotfolders...
 .*
