@@ -363,7 +363,7 @@
 			Compiles the ColdFusion files for any OpenBD compile errors
 		=================================
 	-->
-	<target name="compile.openbd">
+	<target name="compile.openbd" depends="init,copy,copy.jenkins">
 		<echo>openbd compile check</echo>
 	</target>
 	
@@ -373,7 +373,7 @@
 			Compiles the ColdFusion files for any Railo compile errors
 		=================================
 	-->
-	<target name="compile.railo">
+	<target name="compile.railo" depends="init,copy,copy.jenkins">
 		<echo>railo compile check</echo>
 		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
