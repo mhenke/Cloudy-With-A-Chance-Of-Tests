@@ -23,6 +23,17 @@
 		<property file="${user.home}/${ant.project.name}.properties"/>
 		<property file="build.properties" />
 		
+		<!-- some additional mxunit test properties -->
+		<!-- where do your tests live, relative to this build file? test.dir.location will be a full path to a directory -->
+		<property name="test.dir.location" location="${test.dir.name}" />
+
+		<!-- what is the cfc dot-notation path to that directory, as ColdFusion sees it? -->
+		<property name="test.cfcpath" value="${application.name}.${test.dir.name}" />
+		
+		<!-- this is where the xml and html will live for the report generator and Jenkins -->
+		<property name="test.output" location="${test.dir.name}/testresults" />
+		<property name="test.output.xml" location="${test.output}/xml" />
+		
 		<!-- 
 			make sure all the settings are defined *SOMEWHERE*, since comments and documentation are never read
 			 If you add a new variable that has to be set, add it in the lines below
@@ -217,6 +228,7 @@
 	-->
 	<target name="testing.mxunit" depends="init">
 		<echo>unit testing</echo>
+		#<runTestDirectory directoryname="unit" />
 		<mxunittask server="${mxunit.server}"
 			defaultrunner="/mxunit/HttpAntRunner.cfc"
 			outputdir="${mxunit.output.dir}"
@@ -241,6 +253,7 @@
 	-->
 	<target name="testing.selenium" depends="init">
 		<echo>acceptance testing</echo>	
+		<runTestDirectory directoryname="ui" />
 	</target>
 	
 	<!--
@@ -496,4 +509,16 @@
 			</then>
 		</if>
 	</target>
+
+	<macrodef name="runTestDirectory">
+		<attribute name="directoryName"/>
+		<attribute name="excludes" default=""/>
+		<sequential>
+			<delete dir="${test.output.xml}/@{directoryName}"/>
+			<mkdir dir="${test.output.xml}/@{directoryName}"/>
+			<mxunittask server="${test.server}" port="${test.serverport}" defaultrunner="${test.runner}" outputdir="${test.output.xml}/@{directoryName}" verbose="true" failureproperty="tests.bombed" errorproperty="tests.bombed">
+				<directory path="${test.dir.location}/@{directoryName}" recurse="true" packageName="${test.cfcpath}.@{directoryName}" componentPath="${test.cfcpath}.@{directoryName}" excludes="@{excludes}" />
+			</mxunittask>
+		</sequential>
+	</macrodef>
 </project>
