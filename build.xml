@@ -60,15 +60,15 @@
 		<fail message="db.password ${prop.message}" unless="db.password"/>
 		<fail message="db.url ${prop.message}" unless="db.url"/>
 		
-		<fail message="mxunit.server ${prop.message}" unless="mxunit.server"/>
-		<fail message="mxunit.output.dir ${prop.message}" unless="mxunit.output.dir"/>
-		<fail message="mxunit.haltonfailure ${prop.message}" unless="mxunit.haltonfailure"/>
-		<fail message="mxunit.haltonerror ${prop.message}" unless="mxunit.haltonerror"/>
+		<fail message="testing.mxunit.server ${prop.message}" unless="testing.mxunit.server"/>
+		<fail message="testing.mxunit.output.dir ${prop.message}" unless="testing.mxunit.output.dir"/>
+		<fail message="testing.mxunit.haltonfailure ${prop.message}" unless="testing.mxunit.haltonfailure"/>
+		<fail message="testing.mxunit.haltonerror ${prop.message}" unless="testing.mxunit.haltonerror"/>
 		
 		
 		<!-- mxunit default properties -->
-		<property name="mxunit.haltonfailure" value="false" />
-		<property name="mxunit.haltonerror" value="false" />
+		<property name="testing.mxunit.haltonfailure" value="false" />
+		<property name="testing.mxunit.haltonerror" value="false" />
 		
 		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/${buildfolder}" />
 
@@ -186,7 +186,7 @@
 
 	<!--
 		=================================
-			Target: create-database
+			Target: database.create
 			Compile and Rebuild Database
 		=================================
 	-->
@@ -205,6 +205,13 @@
 			</path>
 		</sql>
 	</target>
+	
+	<!--
+		=================================
+			Target: database.update
+			Update database
+		=================================
+	-->
 	<target name="database.update">
 			<echo>Run the update scripts in the sql/update/ folder</echo>
 			<sql
@@ -220,6 +227,7 @@
 				</path>
 			</sql>
 		</target>
+	
 	<!--
 		=================================
 			Target: testing.mxunit
@@ -227,19 +235,19 @@
 		=================================
 	-->
 	<target name="testing.mxunit" depends="init">
-		<echo>unit testing</echo>
+		<echo>testing with mxunit</echo>
 		<!-- <runTestDirectory directoryname="unit" /> -->
-		<mxunittask server="${mxunit.server}"
+		<mxunittask server="${testing.mxunit.server}"
 			defaultrunner="/mxunit/HttpAntRunner.cfc"
-			outputdir="${mxunit.output.dir}"
+			outputdir="${testing.mxunit.output.dir}"
 			verbose="true"
-			testResultsSummary="my.summary"
-			haltonfailure="${mxunit.haltonfailure}"
-			haltonerror="${mxunit.haltonerror}">
+			testResultsSummary="test.mxunit.summary"
+			haltonfailure="${testing.mxunit.haltonfailure}"
+			haltonerror="${testing.mxunit.haltonerror}">
 			
 			<!-- now we add the actual tests to run
 				<testcase name="unittests.TestVersions" packageName="unittests" />
-			-->		
+			-->
 		</mxunittask>
 	</target>
 	
@@ -247,19 +255,19 @@
 		<attribute name="directoryName"/>
 		<attribute name="excludes" default=""/>
 		<sequential>
-			<delete dir="${test.output.xml}/@{directoryName}"/>
-			<mkdir dir="${test.output.xml}/@{directoryName}"/>
-			<mxunittask server="${test.server}" 
-				port="${test.serverport}" 
-				defaultrunner="${test.runner}" 
-				outputdir="${test.output.xml}/@{directoryName}" 
+			<delete dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			<mkdir dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			<mxunittask server="${test.mxunit.server}" 
+				port="${test.mxunit.serverport}" 
+				defaultrunner="${test.mxunit.runner}" 
+				outputdir="${test.mxunit.output.xml}/@{directoryName}" 
 				verbose="true" 
-				failureproperty="tests.bombed" 
-				errorproperty="tests.bombed">
-				<directory path="${test.dir.location}/@{directoryName}" 
+				failureproperty="tests.mxunit.bombed" 
+				errorproperty="tests.mxunit.bombed">
+				<directory path="${test.mxunit.dir.location}/@{directoryName}" 
 					recurse="true" 
-					packageName="${test.cfcpath}.@{directoryName}" 
-					componentPath="${test.cfcpath}.@{directoryName}" 
+					packageName="${test.mxunit.cfcpath}.@{directoryName}" 
+					componentPath="${test.mxunit.cfcpath}.@{directoryName}" 
 					excludes="@{excludes}" />
 				
 				<!-- now we add the actual tests to run
@@ -268,7 +276,6 @@
 			</mxunittask>
 		</sequential>
 	</macrodef>
-	
 	
 	<!--
 		=================================
