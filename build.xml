@@ -255,34 +255,6 @@
 		 -->
 	</target>
 	
-	<macrodef name="runTestDirectory">
-		<attribute name="directoryName"/>
-		<attribute name="excludes" default=""/>
-		<sequential>
-			
-			<delete dir="${test.mxunit.output.xml}/@{directoryName}"/>
-			<mkdir dir="${test.mxunit.output.xml}/@{directoryName}"/>
-			
-			<mxunittask server="${test.mxunit.server}" 
-				port="${test.mxunit.serverport}" 
-				defaultrunner="${test.mxunit.runner}" 
-				outputdir="${test.mxunit.output.xml}/@{directoryName}" 
-				verbose="true" 
-				failureproperty="tests.mxunit.bombed" 
-				errorproperty="tests.mxunit.bombed">
-				<directory path="${test.mxunit.dir.location}/@{directoryName}" 
-					recurse="true" 
-					packageName="${test.mxunit.cfcpath}.@{directoryName}" 
-					componentPath="${test.mxunit.cfcpath}.@{directoryName}" 
-					excludes="@{excludes}" />
-				
-				<!-- now we add the actual tests to run
-					<testcase name="unittests.TestVersions" packageName="unittests" />
-				-->	
-			</mxunittask>
-		</sequential>
-	</macrodef>
-	
 	<!--
 		=================================
 			Target: testing.selenium
@@ -547,5 +519,39 @@
 			</then>
 		</if>
 	</target>
+	
+	<!--
+		=================================
+			Macrodef: runTestDirectory
+			This is used for unit and acceptance testing
+		=================================
+	-->
+	<macrodef name="runTestDirectory">
+		<attribute name="directoryName"/>
+		<attribute name="excludes" default=""/>
+		<sequential>
+			
+			<delete dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			<mkdir dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			
+			<mxunittask server="${test.mxunit.server}" 
+				port="${test.mxunit.serverport}" 
+				defaultrunner="${test.mxunit.runner}" 
+				outputdir="${test.mxunit.output.xml}/@{directoryName}" 
+				verbose="true" 
+				failureproperty="tests.mxunit.bombed" 
+				errorproperty="tests.mxunit.bombed">
+				<directory path="${test.mxunit.dir.location}/@{directoryName}" 
+					recurse="true" 
+					packageName="${test.mxunit.cfcpath}.@{directoryName}" 
+					componentPath="${test.mxunit.cfcpath}.@{directoryName}" 
+					excludes="@{excludes}" />
+				
+				<!-- now we add the actual tests to run
+					<testcase name="unittests.TestVersions" packageName="unittests" />
+				-->	
+			</mxunittask>
+		</sequential>
+	</macrodef>
 
 </project>
