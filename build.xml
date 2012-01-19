@@ -234,7 +234,7 @@
 			Runs the unit tests
 		=================================
 	-->
-	<target name="testing.unit" depends="init">
+	<target name="testing.unit" depends="init" description="this will run unit tests">
 		<echo>unit testing</echo>
 		<runTestDirectory directoryname="unit" />
 		<echo>unit testing done</echo>
@@ -246,7 +246,7 @@
 			Runs the acceptance tests
 		=================================
 	-->
-	<target name="testing.acceptance" depends="init">
+	<target name="testing.acceptance" depends="init" description="this will run acceptance tests">
 		<echo>acceptance testing</echo>	
 		<runTestDirectory directoryname="ui" />
 		<echo>acceptance testing done</echo>	
@@ -258,7 +258,7 @@
 			Test for query params
 		=================================
 	-->
-	<target name="inspection.qpscanner" depends="init,copy" description="Check ColdFusion files for queries vulnerable to SQL injection.">
+	<target name="inspection.qpscanner" depends="init,copy" description="this will inspect code for sql injection issues">
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
 		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
@@ -299,7 +299,7 @@
 			Test var scoped variables
 		=================================
 	-->
-	<target name="inspection.varscoper" depends="init,copy">
+	<target name="inspection.varscoper" depends="init,copy" description="this will inspect code for unscoped variables">
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
 		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
@@ -344,7 +344,7 @@
 			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
-	<target name="inspection.cpd" depends="init,copy">
+	<target name="inspection.cpd" depends="init,copy" description="this will inspect code for duplication">
 		<!-- copy paste detector!! -->
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
 		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
@@ -485,7 +485,7 @@
 			This is a check for any engine
 		=================================
 	-->
-	<target name="compile.check" depends="init">
+	<target name="compile.check" depends="init" description="this will inspect code for syntax issues">
 		<if>
 			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
