@@ -180,7 +180,7 @@
 			Creates documentation
 		=================================
 	-->
-	<target name="documentation" depends="init">
+	<target name="documentation" depends="init"  description="this will create documentation">
 		<echo>documentation</echo>
 	</target>
 
