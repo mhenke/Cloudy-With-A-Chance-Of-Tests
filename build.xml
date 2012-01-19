@@ -25,14 +25,14 @@
 		
 		<!-- some additional mxunit test properties -->
 		<!-- where do your tests live, relative to this build file? test.dir.location will be a full path to a directory -->
-		<property name="test.mxunit.dir.location" location="${test.mxunit.dir.name}" />
+		<property name="mxunit.dir.location" location="${mxunit.dir.name}" />
 
 		<!-- what is the cfc dot-notation path to that directory, as ColdFusion sees it? -->
-		<property name="test.mxunit.cfcpath" value="${directoryName}.${test.mxunit.dir.name}" />
+		<property name="mxunit.cfcpath" value="${directoryName}.${mxunit.dir.name}" />
 		
 		<!-- this is where the xml and html will live for the report generator and Jenkins -->
-		<property name="test.mxunit.output" location="${test.mxunit.dir.name}/testresults" />
-		<property name="test.mxunit.output.xml" location="${test.mxunit.output}/xml" />
+		<property name="mxunit.output" location="${mxunit.dir.name}/testresults" />
+		<property name="mxunit.output.xml" location="${mxunit.output}/xml" />
 		
 		<!-- 
 			make sure all the settings are defined *SOMEWHERE*, since comments and documentation are never read
@@ -60,10 +60,10 @@
 		<fail message="db.password ${prop.message}" unless="db.password"/>
 		<fail message="db.url ${prop.message}" unless="db.url"/>
 		
-		<fail message="test.mxunit.server ${prop.message}" unless="test.mxunit.server"/>
-		<fail message="test.mxunit.output.dir ${prop.message}" unless="test.mxunit.output.dir"/>
-		<fail message="test.mxunit.haltonfailure ${prop.message}" unless="test.mxunit.haltonfailure"/>
-		<fail message="test.mxunit.haltonerror ${prop.message}" unless="test.mxunit.haltonerror"/>
+		<fail message="mxunit.server ${prop.message}" unless="mxunit.server"/>
+		<fail message="mxunit.output.dir ${prop.message}" unless="mxunit.output.dir"/>
+		<fail message="mxunit.haltonfailure ${prop.message}" unless="mxunit.haltonfailure"/>
+		<fail message="mxunit.haltonerror ${prop.message}" unless="mxunit.haltonerror"/>
 		
 		
 		<!-- mxunit default properties -->
@@ -239,14 +239,14 @@
 		<runTestDirectory directoryname="unit" />
 		
 		<!--  
-		<mxunittask server="${test.mxunit.server}"
-			port="${test.mxunit.serverport}"
-			defaultrunner="${test.mxunit.runner}"
-			outputdir="${test.mxunit.output.xml}/@{directoryName}" 
+		<mxunittask server="${mxunit.server}"
+			port="${mxunit.serverport}"
+			defaultrunner="${mxunit.runner}"
+			outputdir="${mxunit.output.xml}/@{directoryName}" 
 			verbose="true"
-			testResultsSummary="test.mxunit.summary"
-			haltonfailure="${test.mxunit.haltonfailure}"
-			haltonerror="${test.mxunit.haltonerror}">
+			testResultsSummary="mxunit.summary"
+			haltonfailure="${mxunit.haltonfailure}"
+			haltonerror="${mxunit.haltonerror}">
 		
 		# now we add the actual tests to run
 		<testcase name="unittests.TestVersions" packageName="unittests" />
@@ -531,24 +531,24 @@
 		<attribute name="excludes" default=""/>
 		<sequential>
 			
-			<delete dir="${test.mxunit.output.xml}/@{directoryName}"/>
-			<mkdir dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			<delete dir="${mxunit.output.xml}/@{directoryName}"/>
+			<mkdir dir="${mxunit.output.xml}/@{directoryName}"/>
 			
-			<mxunittask server="${test.mxunit.server}" 
-				port="${test.mxunit.serverport}" 
-				defaultrunner="${test.mxunit.runner}" 
-				outputdir="${test.mxunit.output.xml}/@{directoryName}" 
+			<mxunittask server="${mxunit.server}" 
+				port="${mxunit.serverport}" 
+				defaultrunner="${mxunit.runner}" 
+				outputdir="${mxunit.output.xml}/@{directoryName}" 
 				verbose="true" 
 				failureproperty="tests.mxunit.bombed" 
 				errorproperty="tests.mxunit.bombed">
-				<directory path="${test.mxunit.dir.location}/@{directoryName}" 
+				<directory path="${mxunit.dir.location}/@{directoryName}" 
 					recurse="true" 
-					packageName="${test.mxunit.cfcpath}.@{directoryName}" 
-					componentPath="${test.mxunit.cfcpath}.@{directoryName}" 
+					packageName="${mxunit.cfcpath}.@{directoryName}" 
+					componentPath="${mxunit.cfcpath}.@{directoryName}" 
 					excludes="@{excludes}" />
 				
 				<!-- now we add the actual tests to run
-					<testcase name="unittests.TestVersions" packageName="unittests" />
+					<testcase name="unittests.TestVersions" packageName="${mxunit.cfcpath}.@{directoryName}" />
 				-->	
 			</mxunittask>
 		</sequential>
