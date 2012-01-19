@@ -235,7 +235,7 @@
 		=================================
 	-->
 	<target name="testing.mxunit" depends="init">
-		<echo>testing with mxunit</echo>
+		<echo>unit testing</echo>
 		<runTestDirectory directoryname="unit" />
 		
 		<!--  
