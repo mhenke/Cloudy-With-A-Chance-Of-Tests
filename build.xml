@@ -70,7 +70,7 @@
 		<property name="testing.unit.haltonfailure" value="false" />
 		<property name="testing.unit.haltonerror" value="false" />
 		
-		<property name="filePathToBuildFolder" value="${webroot}/${directoryName}/tests/${buildfolder}" />
+		<property name="filePathToBuildFolder" value="${webroot}/tests/${buildfolder}" />
 
 		<path id="project.classpath">
 			<fileset dir="lib">
@@ -95,7 +95,7 @@
 		=================================
 	-->
 	<target name="package" description="--> packages the appropriate files into the deployment-ready zip file. use this for testing; otherwise, use publish">
-		<echo>packaging stuff</echo>
+		<echo>packaging</echo>
 	</target>
 
 	<!--
@@ -259,15 +259,28 @@
 		=================================
 	-->
 	<target name="inspection.qpscanner" depends="init,copy" description="this will inspect code for sql injection issues">
-		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
-		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
-		<property name="varscoper.recursiveDirectory" value="true" />
+		<!-- Arguments for CFQueryParam checker -->
+		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
+		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
+		<property name="qpscanner.failOnAlertsFound" value="false" />
+		<property name="qpscanner.config" value="default" />
+		<property name="qpscanner.profile" value="default" />
+		<property name="qpscanner.recurse" value="true" />
+		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
+		<property name="qpscanner.scanOrderBy" value="false" />
+		<property name="qpscanner.scanQoQ" value="false" />
+		<property name="qpscanner.scanBuiltinFunc" value="false" />
+		<property name="qpscanner.showScopeInfo" value="false" />
+		<property name="qpscanner.highlightClientScopes" value="false" />
+		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
+		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
+		
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
 			<prop name="config" value="${qpscanner.config}" />
 			<prop name="profile" value="${qpscanner.profile}" />
-			<prop name="startingDir" value="${qpscanner.startingDir}" />
+			<prop name="startingDir" value="${inspection.absolutefilepath}" />
 			<prop name="recurse" value="${qpscanner.recurse}" />
 			<prop name="exclusions" value="${qpscanner.exclusions}" />
 			<prop name="scanOrderBy" value="${qpscanner.scanOrderBy}" />
@@ -300,25 +313,14 @@
 		=================================
 	-->
 	<target name="inspection.varscoper" depends="init,copy" description="this will inspect code for unscoped variables">
-		<!-- Arguments for CFQueryParam checker -->
-		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
-		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
-		<property name="qpscanner.failOnAlertsFound" value="false" />
-		<property name="qpscanner.config" value="default" />
-		<property name="qpscanner.profile" value="default" />
-		<property name="qpscanner.recurse" value="true" />
-		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
-		<property name="qpscanner.scanOrderBy" value="false" />
-		<property name="qpscanner.scanQoQ" value="false" />
-		<property name="qpscanner.scanBuiltinFunc" value="false" />
-		<property name="qpscanner.showScopeInfo" value="false" />
-		<property name="qpscanner.highlightClientScopes" value="false" />
-		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
-		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
+		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
+		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
+		<property name="varscoper.recursiveDirectory" value="true" />
+		
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
 		<echo>Starting VarScoper check</echo>
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
-		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${filePathToBuildFolder}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
+		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${inspection.absolutefilepath}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
 		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">
 			<filterchain>
 				<headfilter skip="1" />
@@ -485,7 +487,7 @@
 			This is a check for any engine
 		=================================
 	-->
-	<target name="compile.check" depends="init" description="this will inspect code for syntax issues">
+	<target name="compile.check" depends="init,copy,copy.jenkins" description="this will inspect code for syntax issues">
 		<if>
 			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
