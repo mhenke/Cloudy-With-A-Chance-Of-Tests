@@ -1,4 +1,14 @@
-.settings
-.project
 settings.xml
 /cpd.raw
+CFIDE
+WEB-INF
+META-INF
+snapshots
+
+# Ignore all dotfolders...
+.*
+/**/.*
+
+# except
+!.gitignore
+!/**/.gitignore
