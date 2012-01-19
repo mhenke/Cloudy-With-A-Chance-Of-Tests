@@ -532,10 +532,6 @@
 					packageName="${mxunit.cfcpath}.@{directoryName}" 
 					componentPath="${mxunit.cfcpath}.@{directoryName}" 
 					excludes="@{excludes}" />
-				
-				<!-- now we add the actual tests to run
-					<testcase name="unittests.TestVersions" packageName="${mxunit.cfcpath}.@{directoryName}" />
-				-->	
 			</mxunittask>
 		</sequential>
 	</macrodef>
