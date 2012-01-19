@@ -25,14 +25,14 @@
 		
 		<!-- some additional mxunit test properties -->
 		<!-- where do your tests live, relative to this build file? test.dir.location will be a full path to a directory -->
-		<property name="test.dir.location" location="${test.dir.name}" />
+		<property name="test.mxunit.dir.location" location="${test.mxunit.dir.name}" />
 
 		<!-- what is the cfc dot-notation path to that directory, as ColdFusion sees it? -->
-		<property name="test.cfcpath" value="${application.name}.${test.dir.name}" />
+		<property name="test.mxunit.cfcpath" value="${application.name}.${test.mxunit.dir.name}" />
 		
 		<!-- this is where the xml and html will live for the report generator and Jenkins -->
-		<property name="test.output" location="${test.dir.name}/testresults" />
-		<property name="test.output.xml" location="${test.output}/xml" />
+		<property name="test.mxunit.output" location="${test.mxunit.dir.name}/testresults" />
+		<property name="test.mxunit.output.xml" location="${test.mxunit.output}/xml" />
 		
 		<!-- 
 			make sure all the settings are defined *SOMEWHERE*, since comments and documentation are never read
@@ -258,8 +258,10 @@
 		<attribute name="directoryName"/>
 		<attribute name="excludes" default=""/>
 		<sequential>
+			
 			<delete dir="${test.mxunit.output.xml}/@{directoryName}"/>
 			<mkdir dir="${test.mxunit.output.xml}/@{directoryName}"/>
+			
 			<mxunittask server="${test.mxunit.server}" 
 				port="${test.mxunit.serverport}" 
 				defaultrunner="${test.mxunit.runner}" 
