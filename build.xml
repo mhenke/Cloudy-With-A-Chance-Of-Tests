@@ -449,7 +449,7 @@
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
 		<property name="coldfusion.compiler.compileresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
 		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
-		<echo>Starting compile check...</echo>
+		<echo>Starting compile check for Adobe...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
 				<pathelement location="${jrun.jar}" />
@@ -471,7 +471,7 @@
 		</loadfile>
 		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
-		<echo>compile check complete.</echo>
+		<echo>compile check complete for Adobe</echo>
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
