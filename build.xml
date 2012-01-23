@@ -79,6 +79,7 @@
 		</path>
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="project.classpath" />
 		<taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpathref="project.classpath" />
+		<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpathref="project.classpath" />
 		
 	</target>
 
@@ -123,6 +124,8 @@
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
+				<include name="**/*.js"/>
+				<include name="**/*.css"/>
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
@@ -150,6 +153,8 @@
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
+				<include name="**/*.js"/>
+				<include name="**/*.css"/>
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
@@ -358,6 +363,20 @@
 		</cpd>
 		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
 	</target>
+	
+	<!--
+		=================================
+			Target: inspection.jslint
+			Checking if JavaScript source code complies with coding rules 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
+		=================================
+	-->
+	 <target name="inspection.jslint" depends="init" description="this will inspect code for duplication">
+	 	<jslint haltOnFailure="false" options="sloppy">
+	 		<formatter type="xml" destfile="jslint.xml"/>
+	 		<fileset dir="${filePathToBuildFolder}" includes="**/*.js" excludes="**/*.pack.js" />
+	 	  </jslint>
+	  </target>
 	
 	<!--
 		=================================
