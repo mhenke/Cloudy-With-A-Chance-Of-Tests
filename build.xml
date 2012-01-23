@@ -385,7 +385,7 @@
 	-->
 	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">       
 	    <apply executable="java" failonerror="false" parallel="true" output="csslint.xml">
-	        <fileset dir="${filePathToBuildFolder" includes="**/*.css" />
+	        <fileset dir="${filePathToBuildFolder}" includes="**/*.css" />
 	        <arg line="-jar"/>
 	        <arg path="lib/js.jar"/>
 	        <arg path="lib/csslint-rhino.js" />      
