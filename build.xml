@@ -88,7 +88,7 @@
 			Target: all
 		=================================
 	-->
-	<target name="all" depends="init,compile.check,inspection.varscoper,inspection.qpscanner,package,deploy,clean" description="--> packages into a zip and uploads to google code" />
+	<target name="all" depends="init,compile.check,inspection.varscoper,inspection.qpscanner,inspection.cpd,inspection.jslint,inspection.csslint,package,deploy" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -368,7 +368,6 @@
 		=================================
 			Target: inspection.jslint
 			Checking if JavaScript source code complies with coding rules 
-			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
 	 <target name="inspection.jslint" depends="init" description="this will inspect code for duplication">
@@ -377,6 +376,26 @@
 	 		<fileset dir="${filePathToBuildFolder}" includes="**/*.js" excludes="**/*.pack.js" />
 	 	  </jslint>
 	  </target>
+	
+	<!--
+		=================================
+			Target: inspection.csslint
+			Checking if CSS source code complies with coding rules 
+		=================================
+	-->
+	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">       
+	    <apply executable="java" failonerror="false" parallel="true" output="csslint.xml">
+	        <fileset dir="${filePathToBuildFolder" includes="**/*.css" />
+	        <arg line="-jar"/>
+	        <arg path="lib/js.jar"/>
+	        <arg path="lib/csslint-rhino.js" />      
+
+	        <!-- your customized arguments go here -->
+	        <arg line="--format=lint-xml --warnings=box-model,floats --errors=ids,important"/>
+
+	        <srcfile/>
+	    </apply>
+	</target>
 	
 	<!--
 		=================================
