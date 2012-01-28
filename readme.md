@@ -12,7 +12,7 @@ Have fun, this is a journey not a sprint. Introduce this easy step, sit back and
 
 Recorded Presentation - ???
 
-Slides - ???
+Slides - http://prezi.com/ebyrqdkbnhie/cloudy-with-a-chance-of-tests/
 
 Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/edit
 
