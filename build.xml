@@ -77,6 +77,7 @@
 				<include name="**/*.jar" />
 			</fileset>
 		</path>
+		
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="project.classpath" />
 		<taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpathref="project.classpath" />
 		<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpathref="project.classpath" />
@@ -488,7 +489,7 @@
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
 		<property name="coldfusion.compiler.compileresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
-		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
+
 		<echo>Starting compile check for Adobe...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
