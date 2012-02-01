@@ -49,7 +49,6 @@
 		<fail message="webroot ${prop.message}" unless="webroot"/>
 		<fail message="jrun.jar ${prop.message}" unless="jrun.jar"/>
 		<fail message="webapp.server ${prop.message}" unless="webapp.server"/>
-		<fail message="qpscanner.startingDir ${prop.message}" unless="qpscanner.startingDir"/>
 		
 		<fail message="db.driver ${prop.message}" unless="db.driver"/>
 		<fail message="db.classpath ${prop.message}" unless="db.classpath"/>
