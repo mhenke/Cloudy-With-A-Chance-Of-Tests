@@ -129,11 +129,14 @@
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
+				<exclude name="**/cfide/**" />
 				<exclude name="**/WEB-INF/**" />
 				<exclude name="**/META-INF/**" />
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
+				<exclude name="**/lib/**" />
+				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 			</fileset>
 		</copy>
@@ -158,11 +161,14 @@
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
+				<exclude name="**/cfide/**" />
 				<exclude name="**/WEB-INF/**" />
 				<exclude name="**/META-INF/**" />
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
+				<exclude name="**/lib/**" />
+				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 			</fileset>
 		</copy>
@@ -354,14 +360,14 @@
 	<target name="inspection.cpd" depends="init,copy" description="this will inspect code for duplication">
 		<!-- copy paste detector!! -->
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
-		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
+		<cpd minimumTokenCount="200" outputFile="cpd.xml" format="xml" language="cfm" encoding="UTF-8">
 			<fileset dir="${filePathToBuildFolder}">
 				<include name="**/*.cfm"/>
 				<include name="**/*.cfc"/>
 				<include name="**/*.cfml"/>
 			</fileset>
 		</cpd>
-		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
+		<!-- <native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/> -->
 	</target>
 	
 	<!--
@@ -403,7 +409,7 @@
 			Compiles the ColdFusion files for any OpenBD compile errors
 		=================================
 	-->
-	<target name="compile.openbd" depends="init,copy,copy.jenkins">
+	<target name="compile.openbd">
 		<echo>openbd compile check</echo>
 	</target>
 	
@@ -413,7 +419,7 @@
 			Compiles the ColdFusion files for any Railo compile errors
 		=================================
 	-->
-	<target name="compile.railo" depends="init,copy,copy.jenkins">
+	<target name="compile.railo">
 		<echo>railo compile check</echo>
 		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
@@ -479,7 +485,7 @@
 			Compiles the ColdFusion files for any ACF compile errors
 		=================================
 	-->
-	<target name="compile.acf" depends="init,copy,copy.jenkins">
+	<target name="compile.acf">
 		<tstamp />
 
 		<!--ACF Compiler Arguments-->
@@ -487,7 +493,7 @@
 		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.compileresults" value="${workspace}/${directoryName}/${buildfolder}/${DSTAMP}${TSTAMP}compileresults.txt" />
+		<property name="coldfusion.compiler.compileresults" value="${DSTAMP}${TSTAMP}compileresults.txt" />
 
 		<echo>Starting compile check for Adobe...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
@@ -509,6 +515,7 @@
 				</LineContainsRegExp>
 			</filterchain>
 		</loadfile>
+		<delete file="${coldfusion.compiler.compileresults}" />
 		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
 		<echo>compile check complete for Adobe</echo>

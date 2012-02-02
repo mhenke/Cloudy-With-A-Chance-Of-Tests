@@ -5,7 +5,7 @@ WEB-INF
 META-INF
 snapshots
 mxunit
-
+inspection
 # Ignore all dotfolders...
 .*
 /**/.*
