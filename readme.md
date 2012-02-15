@@ -28,17 +28,21 @@ This build script is decoupled from the environment you can execute it in. You c
 
 3) Add the lib folder with the jars at the top level of the project. 
 
-4) To run the VarScope and QueryParam, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
+4) To run the VarScope, QueryParam, and/or Unit/Acceptance tests, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
 
 * http://varscoper.riaforge.org/
 
 * http://qpscanner.riaforge.org/
 
-##MXUnit
-You can also add MXUnit tests and define where they are run from in the testing.mxunit target. 
+* http://mxunit.org/
+
+##Unit and Acceptance tests
+
+You can also add more MXUnit tests. They are define where they are run from in the testing.mxunit target. "Dummy" tests already are setup for unit testing and acceptance testing.
 
 ##Database deployments
-	TODO:Write Description of the sql/create and sql/update folders (hint: add sequentially named files to be run in order, like 0001.sql and 0002.sql)
+
+TODO:Write Description of the sql/create and sql/update folders (hint: add sequentially named files to be run in order, like 0001.sql and 0002.sql)
 
 ## License
 
