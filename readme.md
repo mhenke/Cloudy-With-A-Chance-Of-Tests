@@ -12,6 +12,8 @@ Have fun, this is a journey not a sprint. Introduce this easy step, sit back and
 
 Recorded Presentation - ???
 
+Recorded Presentation (15 mins) - http://cfmumbojumbo.com/cf/index.cfm/bolttalks/bolt-talk-mike-henke-cloudy-with-a-chance-of-tests/
+
 Slides - http://prezi.com/ebyrqdkbnhie/cloudy-with-a-chance-of-tests/
 
 Outline - https://docs.google.com/document/d/1biLTSfLfZxdwLI78Jo2lID_w-pKAqnR63csfu8mT9EA/edit
@@ -32,21 +34,11 @@ This build script is decoupled from the environment you can execute it in. You c
 
 * http://qpscanner.riaforge.org/
 
-
-##Properties
-With Ant files you can define properties in the build.xml file itself. Of course, you can then define them in your build.properties file, but this means you have to check in things like passwords and what have you into your repository which is far from ideal. 
-In the article http://www.javaranch.com/build_properties.jsp you can see that there is yet another way. This is by adding a file in your home directory called [projectname].properties that will overwrite the settings, thus allowing you to have per user properties. 
-
-We have included this as part of this build template for you. Look in the init target for a bit more details. 
-
-You should also add entries for new properties you are defining so that the build will fail if it is not defined properly now iwht a good message. 
-
 ##MXUnit
 You can also add MXUnit tests and define where they are run from in the testing.mxunit target. 
 
 ##Database deployments
 	TODO:Write Description of the sql/create and sql/update folders (hint: add sequentially named files to be run in order, like 0001.sql and 0002.sql)
-
 
 ## License
 
