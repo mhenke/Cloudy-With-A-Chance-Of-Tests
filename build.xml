@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="CloudyBuild" default="all" basedir=".">
+<project name="rewrite" default="all" basedir=".">
 	<description>
 		Build file for compile and other easy to implement coldfusion checks
 	</description>
@@ -49,6 +49,7 @@
 		<fail message="webroot ${prop.message}" unless="webroot"/>
 		<fail message="jrun.jar ${prop.message}" unless="jrun.jar"/>
 		<fail message="webapp.server ${prop.message}" unless="webapp.server"/>
+		<fail message="qpscanner.startingDir ${prop.message}" unless="qpscanner.startingDir"/>
 		
 		<fail message="db.driver ${prop.message}" unless="db.driver"/>
 		<fail message="db.classpath ${prop.message}" unless="db.classpath"/>
@@ -80,7 +81,6 @@
 		<taskdef resource="net/sf/antcontrib/antcontrib.properties" classpathref="project.classpath" />
 		<taskdef name="mxunittask" classname="org.mxunit.ant.MXUnitAntTask" classpathref="project.classpath" />
 		<taskdef name="jslint" classname="com.googlecode.jslint4java.ant.JSLintTask" classpathref="project.classpath" />
-		
 	</target>
 
 	<!--
@@ -129,15 +129,13 @@
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
-				<exclude name="**/cfide/**" />
 				<exclude name="**/WEB-INF/**" />
 				<exclude name="**/META-INF/**" />
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
-				<exclude name="**/lib/**" />
-				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
+				<exclude name="**/wheels/**" />
 			</fileset>
 		</copy>
 		<echo>Done copying files.</echo>
@@ -161,15 +159,13 @@
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
 				<exclude name="**/CFIDE/**" />
-				<exclude name="**/cfide/**" />
 				<exclude name="**/WEB-INF/**" />
 				<exclude name="**/META-INF/**" />
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
-				<exclude name="**/lib/**" />
-				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
+				<exclude name="**/wheels/**" />
 			</fileset>
 		</copy>
 		<echo>Done copying files.</echo>
@@ -269,7 +265,7 @@
 			Test for query params
 		=================================
 	-->
-	<target name="inspection.qpscanner" depends="init,copy" description="this will inspect code for sql injection issues">
+	<target name="inspection.qpscanner" depends="init" description="this will inspect code for sql injection issues">
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
 		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
@@ -277,7 +273,7 @@
 		<property name="qpscanner.config" value="default" />
 		<property name="qpscanner.profile" value="default" />
 		<property name="qpscanner.recurse" value="true" />
-		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks)" />
+		<property name="qpscanner.exclusions" value="(deprecated|scheduledTasks|CFIDE|wheels)" />
 		<property name="qpscanner.scanOrderBy" value="false" />
 		<property name="qpscanner.scanQoQ" value="false" />
 		<property name="qpscanner.scanBuiltinFunc" value="false" />
@@ -285,7 +281,7 @@
 		<property name="qpscanner.highlightClientScopes" value="false" />
 		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
 		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
-		
+		<echo>${inspection.absolutefilepath}</echo>
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
@@ -323,11 +319,10 @@
 			Test var scoped variables
 		=================================
 	-->
-	<target name="inspection.varscoper" depends="init,copy" description="this will inspect code for unscoped variables">
+	<target name="inspection.varscoper" depends="init" description="this will inspect code for unscoped variables">
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
 		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
-		
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
 		<echo>Starting VarScoper check</echo>
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
@@ -341,6 +336,7 @@
 		<property name="varscoper.csv" value="No VarScope Violations"/>
 		<echo>${varscoper.csv}</echo>
 		<delete file="${varscoper.results}" />
+		<!--
 		<fail message="VarScope violations are found.">
 			<condition>
 				<not>
@@ -348,32 +344,14 @@
 				</not>
 			</condition>
 		</fail>
-	</target>
-	
-	<!--
-		=================================
-			Target: inspection.cpd
-			Copy paste detector 
-			http://www.joshuafrankamp.com/blog/keeping-dry/
-		=================================
-	-->
-	<target name="inspection.cpd" depends="init,copy" description="this will inspect code for duplication">
-		<!-- copy paste detector!! -->
-		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
-		<cpd minimumTokenCount="200" outputFile="cpd.xml" format="xml" language="cfm" encoding="UTF-8">
-			<fileset dir="${filePathToBuildFolder}">
-				<include name="**/*.cfm"/>
-				<include name="**/*.cfc"/>
-				<include name="**/*.cfml"/>
-			</fileset>
-		</cpd>
-		<!-- <native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/> -->
+		-->
 	</target>
 	
 	<!--
 		=================================
 			Target: inspection.jslint
-			Checking if JavaScript source code complies with coding rules 
+			Copy paste detector 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
 	 <target name="inspection.jslint" depends="init" description="this will inspect code for duplication">
@@ -386,7 +364,8 @@
 	<!--
 		=================================
 			Target: inspection.csslint
-			Checking if CSS source code complies with coding rules 
+			Copy paste detector 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
 		=================================
 	-->
 	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">       
@@ -405,11 +384,33 @@
 	
 	<!--
 		=================================
+			Target: inspection.cpd
+			Copy paste detector 
+			http://www.joshuafrankamp.com/blog/keeping-dry/
+		=================================
+	-->
+	<target name="inspection.cpd" depends="init" description="this will inspect code for duplication">
+		<!-- copy paste detector!! -->
+		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
+		<cpd minimumTokenCount="200" outputFile="cpd.raw" format="xml" language="cfm" encoding="UTF-8">
+			<fileset dir="${filePathToBuildFolder}">
+				<include name="**/*.cfm"/>
+				<include name="**/*.cfc"/>
+				<include name="**/*.cfml"/>
+				<include name="**/*.js"/>
+				<include name="**/*.css"/>
+			</fileset>
+		</cpd>
+		<native2ascii encoding="UTF-8" src="." dest="." includes="*.raw" ext=".xml"/>
+	</target>
+	
+	<!--
+		=================================
 			Target: compile.openbd
 			Compiles the ColdFusion files for any OpenBD compile errors
 		=================================
 	-->
-	<target name="compile.openbd">
+	<target name="compile.openbd" depends="init">
 		<echo>openbd compile check</echo>
 	</target>
 	
@@ -419,7 +420,7 @@
 			Compiles the ColdFusion files for any Railo compile errors
 		=================================
 	-->
-	<target name="compile.railo">
+	<target name="compile.railo" depends="init">
 		<echo>railo compile check</echo>
 		<!--
 		<antcontrib:runtarget target="railo.mappings.xml.build" />
@@ -485,7 +486,7 @@
 			Compiles the ColdFusion files for any ACF compile errors
 		=================================
 	-->
-	<target name="compile.acf">
+	<target name="compile.acf" depends="init">
 		<tstamp />
 
 		<!--ACF Compiler Arguments-->
@@ -493,8 +494,9 @@
 		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
 		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.compileresults" value="${DSTAMP}${TSTAMP}compileresults.txt" />
-
+		<property name="coldfusion.compiler.file" value="${DSTAMP}${TSTAMP}compileresults.txt" />
+		<property name="coldfusion.compiler.compileresults" value="${workspace}/${directoryName}/${buildfolder}/${coldfusion.compiler.file}" />
+		<mkdir dir="${workspace}/${directoryName}/${buildfolder}" />
 		<echo>Starting compile check for Adobe...</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
@@ -515,7 +517,7 @@
 				</LineContainsRegExp>
 			</filterchain>
 		</loadfile>
-		<delete file="${coldfusion.compiler.compileresults}" />
+
 		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
 		<echo>compile check complete for Adobe</echo>
