@@ -118,9 +118,9 @@
 		=================================
 	-->
 	<target name="copy" depends="init,clean" unless="jenkins_workspace">
-		<echo>Copying from ${workspace}/${directoryName}</echo>
+		<echo>Copying from ${pathToFilesToCheck}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
-			<fileset dir="${workspace}/${directoryName}">
+			<fileset dir="${pathToFilesToCheck}/${directoryName}">
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
