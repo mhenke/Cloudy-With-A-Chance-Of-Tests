@@ -28,7 +28,7 @@
 		<property name="mxunit.dir.location" location="${mxunit.dir.name}" />
 
 		<!-- what is the cfc dot-notation path to that directory, as ColdFusion sees it? -->
-		<property name="mxunit.cfcpath" value="${directoryName}.${mxunit.dir.name}" />
+		<property name="mxunit.cfcpath" value="${mxunit.dir.name}" />
 		
 		<!-- this is where the xml and html will live for the report generator and Jenkins -->
 		<property name="mxunit.output" location="${mxunit.dir.name}/testresults" />
@@ -44,9 +44,9 @@
 		<fail message="cfmlengine.openbd ${prop.message}" unless="cfmlengine.openbd"/>
 		<fail message="cfmlengine.acf ${prop.message}" unless="cfmlengine.acf"/>
 		<fail message="directoryName ${prop.message}" unless="directoryName"/>
-		<fail message="workspace ${prop.message}" unless="workspace"/>
-		<fail message="buildfolder ${prop.message}" unless="buildfolder"/>
-		<fail message="webroot ${prop.message}" unless="webroot"/>
+		<fail message="pathToFilesToCheck ${prop.message}" unless="pathToFilesToCheck"/>
+		<fail message="isolateInspection ${prop.message}" unless="isolateInspection"/>
+		<fail message="compilePathJars ${prop.message}" unless="compilePathJars"/>
 		<fail message="jrun.jar ${prop.message}" unless="jrun.jar"/>
 		<fail message="webapp.server ${prop.message}" unless="webapp.server"/>
 		
@@ -69,10 +69,10 @@
 		<property name="testing.unit.haltonfailure" value="false" />
 		<property name="testing.unit.haltonerror" value="false" />
 		
-		<property name="filePathToBuildFolder" value="${webroot}/tests/${buildfolder}" />
+		<property name="filePathToBuildFolder" value="${compilePathJars}/${isolateInspection}" />
 
 		<path id="project.classpath">
-			<fileset dir="lib">
+			<fileset dir="lib-cloudy">
 				<include name="**/*.jar" />
 			</fileset>
 		</path>
@@ -88,7 +88,7 @@
 			Target: all
 		=================================
 	-->
-	<target name="all" depends="init,compile.check,inspection.varscoper,inspection.qpscanner,inspection.cpd,inspection.jslint,inspection.csslint,package,deploy" description="--> packages into a zip and uploads to google code" />
+	<target name="all" depends="init,compile.check,package,deploy" description="--> packages into a zip and uploads to google code" />
 
 	<!--
 		=================================
@@ -106,9 +106,9 @@
 		=================================
 	-->
 	<target name="clean">
-		<echo>Cleaning started</echo>
+		<echo>Cleaning started...</echo>
 		<delete dir="${filePathToBuildFolder}" />
-		<echo>Clean-up done.</echo>
+		<echo>clean-up done</echo>
 	</target>
 
 	<!--
@@ -125,6 +125,7 @@
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
 				<include name="**/*.js"/>
+				<include name="**/*.xml"/>
 				<include name="**/*.css"/>
 				<exclude name="**/mxunit/**" />
 				<exclude name="**/plugins/**" />
@@ -135,12 +136,12 @@
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
-				<exclude name="**/lib/**" />
+				<exclude name="**/lib-cloudy/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 			</fileset>
 		</copy>
-		<echo>Done copying files.</echo>
+		<echo>done copying files</echo>
 	</target>
 
 	<!--
@@ -156,6 +157,7 @@
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
+				<include name="**/*.xml"/>
 				<include name="**/*.js"/>
 				<include name="**/*.css"/>
 				<exclude name="**/mxunit/**" />
@@ -167,12 +169,12 @@
 				<exclude name="**/varscoper4/**" />
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
-				<exclude name="**/lib/**" />
+				<exclude name="**/lib-cloudy/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 			</fileset>
 		</copy>
-		<echo>Done copying files.</echo>
+		<echo>done copying files</echo>
 	</target>
 
 	<!--
@@ -202,7 +204,7 @@
 		=================================
 	-->
 	<target name="database.create">
-		<echo>Run the create scripts in the sql/create/ folder</echo>
+		<echo>Run the create scripts in the sql/create/ folder...</echo>
 		<sql
 			driver="${db.driver}"
 			classpath="${db.classpath}"
@@ -224,20 +226,20 @@
 		=================================
 	-->
 	<target name="database.update">
-			<echo>Run the update scripts in the sql/update/ folder</echo>
-			<sql
-				driver="${db.driver}"
-				classpath="${db.classpath}"
-				url="${db.url}"
-				userid="${db.user}"
-				password="${db.password}">
-				<path>
-					<fileset dir="sql/update/">
-						<include name="*.sql"/>
-					</fileset>
-				</path>
-			</sql>
-		</target>
+		<echo>Run the update scripts in the sql/update/ folder...</echo>
+		<sql
+			driver="${db.driver}"
+			classpath="${db.classpath}"
+			url="${db.url}"
+			userid="${db.user}"
+			password="${db.password}">
+			<path>
+				<fileset dir="sql/update/">
+					<include name="*.sql"/>Kurt Wiersma joins me on Bolt Talks to explain the mission and purpose of the Open CF Summit.  All users of ColdFusion regardless if they use Adobe ColdFusion, Railo or OpenBD CFML engines can benefit from attending the Open CF Summit.  He also explains the "open space unconference" style of the conference as well as the HackFest that will take place.
+				</fileset>
+			</path>
+		</sql>
+	</target>
 	
 	<!--
 		=================================
@@ -246,9 +248,7 @@
 		=================================
 	-->
 	<target name="testing.unit" depends="init" description="this will run unit tests">
-		<echo>unit testing</echo>
-		<runTestDirectory directoryname="unit" />
-		<echo>unit testing done</echo>
+		<runTestDirectory testDirectoryName="unit" />
 	</target>
 	
 	<!--
@@ -258,9 +258,7 @@
 		=================================
 	-->
 	<target name="testing.acceptance" depends="init" description="this will run acceptance tests">
-		<echo>acceptance testing</echo>	
-		<runTestDirectory directoryname="ui" />
-		<echo>acceptance testing done</echo>	
+		<runTestDirectory testDirectoryName="ui" />
 	</target>
 	
 	<!--
@@ -270,6 +268,7 @@
 		=================================
 	-->
 	<target name="inspection.qpscanner" depends="init,copy" description="this will inspect code for sql injection issues">
+		<echo>Starting qpscanner...</echo>
 		<!-- Arguments for CFQueryParam checker -->
 		<property name="qpscanner.url" value="${webapp.server}/qpscanner/index.cfm?fuseaction=scanner.go" />
 		<property name="qpscanner.outputfile" location="${filePathToBuildFolder}/qpscanner.xml" />
@@ -285,7 +284,7 @@
 		<property name="qpscanner.highlightClientScopes" value="false" />
 		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
 		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
-		
+		<echo>for ${inspection.absolutefilepath}</echo>
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
@@ -304,7 +303,6 @@
 		<xmlproperty file="${qpscanner.results}" />
 		<echo message="Scanned ${qpscanner.info.count.files} files containing ${qpscanner.info.count.queries} queries." />
 		<echo message="Found ${qpscanner.info.count.alerts} alerts." />
-		<delete file="${qpscanner.results}" />
 		<fail message="QueryParam Scanner alerts present.">
 			<condition>
 				<and>
@@ -325,11 +323,12 @@
 	-->
 	<target name="inspection.varscoper" depends="init,copy" description="this will inspect code for unscoped variables">
 		<property name="varscoper.baseurl" value="${webapp.server}/varscoper4/" />
-		<property name="varscoper.results" value="varscoper${DSTAMP}${TSTAMP}.csv" />
+		<property name="varscoper.results" value="varscoper.csv" />
 		<property name="varscoper.recursiveDirectory" value="true" />
 		
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
-		<echo>Starting VarScoper check</echo>
+		<echo>Starting VarScoper check...</echo>
+		<echo>for ${inspection.absolutefilepath}</echo>
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
 		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${inspection.absolutefilepath}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
 		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">
@@ -340,7 +339,6 @@
 		</loadfile>
 		<property name="varscoper.csv" value="No VarScope Violations"/>
 		<echo>${varscoper.csv}</echo>
-		<delete file="${varscoper.results}" />
 		<fail message="VarScope violations are found.">
 			<condition>
 				<not>
@@ -358,7 +356,9 @@
 		=================================
 	-->
 	<target name="inspection.cpd" depends="init,copy" description="this will inspect code for duplication">
+		<echo>Starting Copy Paste detector...</echo>
 		<!-- copy paste detector!! -->
+		<echo>for ${filePathToBuildFolder}</echo>
 		<taskdef name="cpd" classname="net.sourceforge.pmd.cpd.CPDTask" classpathref="project.classpath"/>
 		<cpd minimumTokenCount="200" outputFile="cpd.xml" format="xml" language="cfm" encoding="UTF-8">
 			<fileset dir="${filePathToBuildFolder}">
@@ -377,6 +377,7 @@
 		=================================
 	-->
 	 <target name="inspection.jslint" depends="init" description="this will inspect code for duplication">
+	 	<echo>Starting jslint...</echo>
 	 	<jslint haltOnFailure="false" options="sloppy">
 	 		<formatter type="xml" destfile="jslint.xml"/>
 	 		<fileset dir="${filePathToBuildFolder}" includes="**/*.js" excludes="**/*.pack.js" />
@@ -389,12 +390,13 @@
 			Checking if CSS source code complies with coding rules 
 		=================================
 	-->
-	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">       
+	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">
+		<echo>Starting csslint...</echo>
 	    <apply executable="java" failonerror="false" parallel="true" output="csslint.xml">
 	        <fileset dir="${filePathToBuildFolder}" includes="**/*.css" />
 	        <arg line="-jar"/>
-	        <arg path="lib/js.jar"/>
-	        <arg path="lib/csslint-rhino.js" />      
+	        <arg path="lib-cloudy/js.jar"/>
+	        <arg path="lib-cloudy/csslint-rhino.js" />      
 
 	        <!-- your customized arguments go here -->
 	        <arg line="--format=lint-xml --warnings=box-model,floats --errors=ids,important"/>
@@ -421,81 +423,67 @@
 	-->
 	<target name="compile.railo">
 		<echo>railo compile check</echo>
-		<!--
-		<antcontrib:runtarget target="railo.mappings.xml.build" />
-		<property name="build.cfc.url" value="http://${server.host}:${server.port.http}${war.contextpath}/_cfd_compile_temp/Build.cfc" />
-		<property name="compile.results.file" location="compile-results.txt" />
-		<mkdir dir="${war.target.dir}/_cfd_compile_temp" />
-		<railo-mapping virtual="/_cfd_compile_temp" physical="${war.target.dir}/_cfd_compile_temp" />
-		<copy file="${cfdistro.basedir}/Build.cfc" todir="${war.target.dir}/_cfd_compile_temp" />
-		<sequential>
-			<antcontrib:runtarget target="runwar.start" />
-			<echo file="${compile.results.file}" message="Compile results (${todays.date}): ${line.separator}${line.separator}" />
-			<xmltask sourcebuffer="mappings.buff">
-				<call path="mappings/*">
-					<param name="virtual" path="@virtual" default="NONE" />
-					<param name="physical" path="@physical" default="NONE" />
-					<actions>
-						<sequential>
-							<echo message="@{virtual} @{physical}/" />
-							<copy todir="${war.target.dir}@{virtual}" verbose="${cfdistro.debug}">
-								<fileset dir="@{physical}" />
-							</copy>
-							<echo message="Compiling mapping - @{virtual} - @{physical}" />
-							<get src="${build.cfc.url}?method=compile-mapping&amp;mapping=@{virtual}&amp;cfadminpassword=${cfadmin.password}" dest="compile.results.temp" retries="1" verbose="true" ignoreerrors="true" />
-							<antcontrib:var name="compile.results" unset="true" />
-							<loadfile srcFile="compile.results.temp" property="compile.results" failonerror="false" />
-							<property name="compile.results" value="&lt;a href=&quot;${build.cfc.url}?method=compile-mapping&amp;mapping=@{virtual}&amp;cfadminpassword=${cfadmin.password}&quot;&gt;Compile /@{virtual}&lt;/a&gt;" />
-							<echo file="${compile.results.file}" append="true" message="${line.separator}${line.separator}*** mapping @{virtual} compile results: ${compile.results}" />
-							<delete file="compile.results.temp" />
-							<antcontrib:propertyregex override="yes" property="mappingName" input="@{virtual}" regexp=".*/|.*\\([^\.]*)" replace="\1" />
-							<copy todir="${war.target.dir}" verbose="${cfdistro.debug}" overwrite="true">
-								<fileset dir="${war.target.dir}/WEB-INF/railo/cfclasses/" />
-								<chainedmapper>
-									<regexpmapper from="^CF_.+_(${mappingName})\d{4}/+(.*)" to="\1/\2" />
-									<regexpmapper from="(.*)_cf(.).+\.class$$" to="\1.cf\2" />
-								</chainedmapper>
-							</copy>
-						</sequential>
-					</actions>
-				</call>
-			</xmltask>
-			<open-url url="${build.cfc.url}?method=show-results&amp;resultsfile=${compile.results.file}" />
-			<sleep seconds="3" />
-		<xmltask sourcebuffer="mappings.buff">
-			<call path="mappings/*">
-				<param name="virtual" path="@virtual" default="NONE" />
-				<param name="physical" path="@physical" default="NONE" />
-				<actions>
-					<railo-mapping-remove virtual="@{virtual}" />
-				</actions>
-			</call>
-		</xmltask>
-		<antcontrib:runtarget target="runwar.stop" />
-		<delete file="${war.target.dir}/Build.cfc" />
-		<delete dir="${war.target.dir}/_cfd_compile_temp" />
-		<railo-mapping-remove virtual="/_cfd_compile_temp" />
-	</sequential>
-		-->
 	</target>
 	
 	<!--
 		=================================
-			Target: compile.acf
+			Target: compile.acf.standalone
 			Compiles the ColdFusion files for any ACF compile errors
 		=================================
 	-->
-	<target name="compile.acf">
+	<target name="compile.acf.standalone" if="cfmlengine.acf.standalone">
+			<tstamp />
+
+			<!--ACF Compiler Arguments-->
+			<property name="coldfusion.bootstrap.jar" value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
+			<property name="coldfusion.cfx.jar" value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
+			<property name="coldfusion.compiler.libpath" value="${compilePathJars}/WEB-INF/cfusion/lib/" />
+			<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
+			<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
+
+			<echo>Starting compile check for Adobe...</echo>
+			<echo>for ${filePathToBuildFolder}</echo>
+			<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
+				<classpath>
+					<pathelement location="${jrun.jar}" />
+					<pathelement location="${coldfusion.bootstrap.jar}" />
+					<pathelement location="${coldfusion.cfx.jar}" />
+				</classpath>
+				<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
+				<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
+				<arg line=" Compiler " />
+				<arg line=" -webroot ${compilePathJars} " />
+				<arg line=" ${filePathToBuildFolder}" />
+			</java>
+			<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
+				<filterchain>
+					<LineContainsRegExp>
+						<regexp pattern="^Error*" />
+					</LineContainsRegExp>
+				</filterchain>
+			</loadfile>
+			<property name="src.file.cferrors" value="No compile Errors" />
+			<echo>${src.file.cferrors}</echo>
+			<echo>compile check complete for Adobe</echo>
+			<fail>
+				<condition>
+					<equals arg1="${java.compilecheck}" arg2="1" />
+				</condition>
+			</fail>
+		</target>
+
+	<target name="compile.acf.multi" unless="cfmlengine.acf.standalone">
 		<tstamp />
 
 		<!--ACF Compiler Arguments-->
-		<property name="coldfusion.bootstrap.jar" value="${webroot}/WEB-INF/lib/cfmx_bootstrap.jar" />
-		<property name="coldfusion.cfx.jar" value="${webroot}/WEB-INF/lib/cfx.jar" />
-		<property name="coldfusion.compiler.libpath" value="${webroot}/WEB-INF/cfusion/lib/" />
+		<property name="coldfusion.bootstrap.jar" value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
+		<property name="coldfusion.cfx.jar" value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
+		<property name="coldfusion.compiler.libpath" value="${compilePathJars}/WEB-INF/cfusion/lib/" />
 		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-		<property name="coldfusion.compiler.compileresults" value="${DSTAMP}${TSTAMP}compileresults.txt" />
+		<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
 
 		<echo>Starting compile check for Adobe...</echo>
+		<echo>for ${filePathToBuildFolder}</echo>
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
 				<pathelement location="${jrun.jar}" />
@@ -505,7 +493,7 @@
 			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
 			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
 			<arg line=" Compiler " />
-			<arg line=" -webroot ${webroot} " />
+			<arg line=" -webroot ${compilePathJars} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
 		<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
@@ -515,7 +503,7 @@
 				</LineContainsRegExp>
 			</filterchain>
 		</loadfile>
-		<delete file="${coldfusion.compiler.compileresults}" />
+		
 		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
 		<echo>compile check complete for Adobe</echo>
@@ -525,6 +513,7 @@
 			</condition>
 		</fail>
 	</target>
+	
 	
 	<!--
 		=================================
@@ -536,7 +525,8 @@
 		<if>
 			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
-				<antcall target="compile.acf" />
+				<antcall target="compile.acf.standalone" />
+				<antcall target="compile.acf.multi" />
 			</then>
 		</if>
 		<if>
@@ -560,24 +550,24 @@
 		=================================
 	-->
 	<macrodef name="runTestDirectory">
-		<attribute name="directoryName"/>
+		<attribute name="testDirectoryName"/>
 		<attribute name="excludes" default=""/>
 		<sequential>
 			
-			<delete dir="${mxunit.output.xml}/@{directoryName}"/>
-			<mkdir dir="${mxunit.output.xml}/@{directoryName}"/>
-			
+			<delete dir="${mxunit.output.xml}/@{testDirectoryName}"/>
+			<mkdir dir="${mxunit.output.xml}/@{testDirectoryName}"/>
+			<echo>for ${mxunit.dir.location}/@{testDirectoryName}</echo>
 			<mxunittask server="${mxunit.server}" 
 				port="${mxunit.serverport}" 
 				defaultrunner="${mxunit.runner}" 
-				outputdir="${mxunit.output.xml}/@{directoryName}" 
+				outputdir="${mxunit.output.xml}/@{testDirectoryName}" 
 				verbose="true" 
 				failureproperty="tests.mxunit.bombed" 
 				errorproperty="tests.mxunit.bombed">
-				<directory path="${mxunit.dir.location}/@{directoryName}" 
+				<directory path="${mxunit.dir.location}/@{testDirectoryName}" 
 					recurse="true" 
-					packageName="${mxunit.cfcpath}.@{directoryName}" 
-					componentPath="${mxunit.cfcpath}.@{directoryName}" 
+					packageName="${mxunit.cfcpath}.@{testDirectoryName}" 
+					componentPath="${mxunit.cfcpath}.@{testDirectoryName}" 
 					excludes="@{excludes}" />
 			</mxunittask>
 		</sequential>
