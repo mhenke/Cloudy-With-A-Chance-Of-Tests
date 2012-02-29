@@ -30,11 +30,11 @@ This build script is decoupled from the environment you can execute it in. You c
 
 4) To run the VarScope, QueryParam, and/or Unit/Acceptance tests, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
 
-* http://varscoper.riaforge.org/
+* Folder name: varscoper4 - http://varscoper.riaforge.org/
 
-* http://qpscanner.riaforge.org/
+* foldername: qpscanner - http://qpscanner.riaforge.org/
 
-* http://mxunit.org/
+* foldername: mxunit - http://mxunit.org/
 
 ##Unit and Acceptance tests
 
