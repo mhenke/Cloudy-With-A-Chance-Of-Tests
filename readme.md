@@ -24,7 +24,7 @@ This build script is decoupled from the environment you can execute it in. You c
 
 1) Please add the build.xml to your source control system in your top level folder and build.properties but ignore it from your scs. 
 
-2) You will have to change some build.properties settings to match the environment it will run on.
+2) What do I do with the Zip???? You will have to change some build.properties settings to match the environment it will run on.
 
 3) Add the lib folder with the jars at the top level of the project. 
 
