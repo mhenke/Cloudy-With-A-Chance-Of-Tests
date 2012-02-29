@@ -22,11 +22,11 @@ Recorded Presentation - ???
 
 This build script is decoupled from the environment you can execute it in. You can use the command prompt, Eclipse IDE, or Jenkins with just a few changes to build.properties. 
 
-1) Please add the build.xml to your source control system in your top level folder and build.properties but ignore it from your scs. 
+1) Please unzip and add the build.xml to your source control system in your top level folder and build.properties but ignore it from your scs. 
 
-2) What do I do with the Zip???? You will have to change some build.properties settings to match the environment it will run on.
+2) Unzip and add the lib-cloudy folder with the jars at the top level of the project and to source control.
 
-3) Add the lib folder with the jars at the top level of the project. 
+3) You will have to change some build.properties settings to match the environment it will run on.
 
 4) To run the VarScope, QueryParam, and/or Unit/Acceptance tests, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
 
