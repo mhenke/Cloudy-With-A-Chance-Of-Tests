@@ -235,7 +235,7 @@
 			password="${db.password}">
 			<path>
 				<fileset dir="sql/update/">
-					<include name="*.sql"/>Kurt Wiersma joins me on Bolt Talks to explain the mission and purpose of the Open CF Summit.  All users of ColdFusion regardless if they use Adobe ColdFusion, Railo or OpenBD CFML engines can benefit from attending the Open CF Summit.  He also explains the "open space unconference" style of the conference as well as the HackFest that will take place.
+					<include name="*.sql"/>
 				</fileset>
 			</path>
 		</sql>
