@@ -434,11 +434,11 @@
 	<target name="compile.acf.standalone" if="cfmlengine.acf.standalone">
 			<tstamp />
 
-			<!--ACF Compiler Arguments-->
-			<property name="coldfusion.bootstrap.jar" value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
-			<property name="coldfusion.cfx.jar" value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
-			<property name="coldfusion.compiler.libpath" value="${compilePathJars}/WEB-INF/cfusion/lib/" />
-			<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
+			<!--ACF Compiler Arguments-->/opt/coldfusion10/cfusion/lib/
+			<property name="coldfusion.bootstrap.jar" 		value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
+			<property name="coldfusion.cfx.jar" 			value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
+			<property name="coldfusion.compiler.libpath" 	value="${compilePathJars}/WEB-INF/lib/" />
+			<property name="coldfusion.compiler.classpath" 	value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
 			<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
 
 			<echo>Starting compile check for Adobe...</echo>

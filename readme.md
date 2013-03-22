@@ -26,8 +26,8 @@ This build script is decoupled from the environment you can execute it in. You c
 1. To run the VarScope, QueryParam, and/or Unit/Acceptance tests, you will need to download and place them in the top level of the web server (not just the project top level). I would recommend excluding them from your source control system.
 
 * Folder name: varscoper4 - http://varscoper.riaforge.org/
-* foldername: qpscanner - http://qpscanner.riaforge.org/
-* foldername: mxunit - http://mxunit.org/
+* Folder name: qpscanner - http://qpscanner.riaforge.org/
+* Folder name: mxunit - http://mxunit.org/
 
 ##Unit and Acceptance tests
 You can also add more MXUnit tests. They are define where they are run from in the testing.mxunit target. "Dummy" tests already are setup for unit testing and acceptance testing.
