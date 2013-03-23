@@ -281,13 +281,13 @@
 		<property name="qpscanner.highlightClientScopes" value="false" />
 		<property name="qpscanner.clientScopes" value="form,url,client,cookie" />
 		<property name="qpscanner.results" value="${qpscanner.outputfile}" />
-		<echo>for ${inspection.absolutefilepath}</echo>
+		<echo>for ${inspection.urlpath}</echo>
 		<post to="${qpscanner.url}" logfile="${qpscanner.results}" append="false" verbose="false">
 			<prop name="action" value="scan" />
 			<prop name="outputFormat" value="xml" />
 			<prop name="config" value="${qpscanner.config}" />
 			<prop name="profile" value="${qpscanner.profile}" />
-			<prop name="startingDir" value="${inspection.absolutefilepath}" />
+			<prop name="startingDir" value="${inspection.urlpath}" />
 			<prop name="recurse" value="${qpscanner.recurse}" />
 			<prop name="exclusions" value="${qpscanner.exclusions}" />
 			<prop name="scanOrderBy" value="${qpscanner.scanOrderBy}" />
@@ -325,9 +325,9 @@
 		
 		<!-- note: this target should fail when running as default (test case has var scope violations-->
 		<echo>Starting VarScoper check...</echo>
-		<echo>for ${inspection.absolutefilepath}</echo>
+		<echo>for ${inspection.urlpath}</echo>
 		<!-- save the results of the call to varscoper.cfm as a csv file that we will delete later -->
-		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${inspection.absolutefilepath}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
+		<get dest="${varscoper.results}" src="${varscoper.baseurl}?displayformat=csv&amp;filePath=${inspection.urlpath}&amp;varscoper.recursiveDirectory=${varscoper.recursiveDirectory}" />
 		<loadfile srcfile="${varscoper.results}" property="varscoper.csv">
 			<filterchain>
 				<headfilter skip="1" />
@@ -424,54 +424,11 @@
 	
 	<!--
 		=================================
-			Target: compile.acf.standalone
+			Target: compile.acf
 			Compiles the ColdFusion files for any ACF compile errors
 		=================================
 	-->
-	<target name="compile.acf.standalone" if="cfmlengine.acf.standalone">
-		<tstamp />
-
-		<!--ACF Compiler Arguments-->
-		<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
-
-		<echo>Starting standalone compile check for Adobe...</echo>
-		<echo>for ${filePathToBuildFolder}</echo>
-		<echo>${J2EEJAR}</echo>
-		<echo>${WEBINF}</echo>
-		<echo>${CFUSION_HOME}</echo>
-		<echo>${webroot}</echo>
-		<echo>${filePathToBuildFolder}</echo>
-		<echo></echo>
-		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
-			<classpath>
-				<pathelement location="${J2EEJAR}" />
-				<pathelement location="${WEBINF}/lib/cfmx_bootstrap.jar" />
-				<pathelement location="${WEBINF}/lib/cfx.jar" />
-			</classpath>
-			<sysproperty key=" coldfusion.classPath" value="${CFUSION_HOME}/lib/updates" />
-			<sysproperty key=" coldfusion.libPath" value="${CFUSION_HOME}/lib" />
-			<arg line=" Compiler " />
-			<arg line=" -webroot ${webroot} " />
-			<arg line=" ${filePathToBuildFolder}" />
-		</java>
-		<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
-			<filterchain>
-				<LineContainsRegExp>
-					<regexp pattern="^Error*" />
-				</LineContainsRegExp>
-			</filterchain>
-		</loadfile>
-		<property name="src.file.cferrors" value="No compile Errors" />
-		<echo>${src.file.cferrors}</echo>
-		<echo>compile check complete for Adobe</echo>
-		<fail>
-			<condition>
-				<equals arg1="${java.compilecheck}" arg2="1" />
-			</condition>
-		</fail>
-	</target>
-
-	<target name="compile.acf.multi" unless="cfmlengine.acf.standalone">
+	<target name="compile.acf">
 		<tstamp />
 
 		<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
@@ -484,6 +441,7 @@
 				<pathelement location="${CFUSION_HOME}/runtime/lib/servlet-api.jar" />
 				<pathelement location="${CFUSION_HOME}/runtime/lib/jsp-api.jar" />
 				<pathelement location="${CFUSION_HOME}/runtime/lib/el-api.jar" />
+				<pathelement location="${CFUSION_HOME}/runtime/lib/jrun.jar" />
 				<pathelement location="${WEBINF}/lib/cfmx_bootstrap.jar" />
 				<pathelement location="${WEBINF}/lib/cfx.jar" />
 			</classpath>
@@ -524,8 +482,7 @@
 		<if>
 			<equals arg1="${cfmlengine.acf}" arg2="true"/>
 			<then>
-				<antcall target="compile.acf.standalone" />
-				<antcall target="compile.acf.multi" />
+				<antcall target="compile.acf" />
 			</then>
 		</if>
 		<if>
