@@ -44,10 +44,7 @@
 		<fail message="cfmlengine.openbd ${prop.message}" unless="cfmlengine.openbd"/>
 		<fail message="cfmlengine.acf ${prop.message}" unless="cfmlengine.acf"/>
 		<fail message="directoryName ${prop.message}" unless="directoryName"/>
-		<fail message="pathToFilesToCheck ${prop.message}" unless="pathToFilesToCheck"/>
 		<fail message="isolateInspection ${prop.message}" unless="isolateInspection"/>
-		<fail message="compilePathJars ${prop.message}" unless="compilePathJars"/>
-		<fail message="jrun.jar ${prop.message}" unless="jrun.jar"/>
 		<fail message="webapp.server ${prop.message}" unless="webapp.server"/>
 		
 		<fail message="db.driver ${prop.message}" unless="db.driver"/>
@@ -118,9 +115,9 @@
 		=================================
 	-->
 	<target name="copy" depends="init,clean" unless="jenkins_workspace">
-		<echo>Copying from ${pathToFilesToCheck}/${directoryName}</echo>
+		<echo>Copying from ${webroot}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
-			<fileset dir="${pathToFilesToCheck}/${directoryName}">
+			<fileset dir="${webroot}/${directoryName}">
 				<include name="**/*.cfm" />
 				<include name="**/*.cfml" />
 				<include name="**/*.cfc" />
@@ -432,68 +429,70 @@
 		=================================
 	-->
 	<target name="compile.acf.standalone" if="cfmlengine.acf.standalone">
-			<tstamp />
+		<tstamp />
 
-			<!--ACF Compiler Arguments-->/opt/coldfusion10/cfusion/lib/
-			<property name="coldfusion.bootstrap.jar" 		value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
-			<property name="coldfusion.cfx.jar" 			value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
-			<property name="coldfusion.compiler.libpath" 	value="${compilePathJars}/WEB-INF/lib/" />
-			<property name="coldfusion.compiler.classpath" 	value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
-			<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
+		<!--ACF Compiler Arguments-->
+		<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
 
-			<echo>Starting compile check for Adobe...</echo>
-			<echo>for ${filePathToBuildFolder}</echo>
-			<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
-				<classpath>
-					<pathelement location="${jrun.jar}" />
-					<pathelement location="${coldfusion.bootstrap.jar}" />
-					<pathelement location="${coldfusion.cfx.jar}" />
-				</classpath>
-				<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
-				<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
-				<arg line=" Compiler " />
-				<arg line=" -webroot ${compilePathJars} " />
-				<arg line=" ${filePathToBuildFolder}" />
-			</java>
-			<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
-				<filterchain>
-					<LineContainsRegExp>
-						<regexp pattern="^Error*" />
-					</LineContainsRegExp>
-				</filterchain>
-			</loadfile>
-			<property name="src.file.cferrors" value="No compile Errors" />
-			<echo>${src.file.cferrors}</echo>
-			<echo>compile check complete for Adobe</echo>
-			<fail>
-				<condition>
-					<equals arg1="${java.compilecheck}" arg2="1" />
-				</condition>
-			</fail>
-		</target>
+		<echo>Starting standalone compile check for Adobe...</echo>
+		<echo>for ${filePathToBuildFolder}</echo>
+		<echo>${J2EEJAR}</echo>
+		<echo>${WEBINF}</echo>
+		<echo>${CFUSION_HOME}</echo>
+		<echo>${webroot}</echo>
+		<echo>${filePathToBuildFolder}</echo>
+		<echo></echo>
+		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
+			<classpath>
+				<pathelement location="${J2EEJAR}" />
+				<pathelement location="${WEBINF}/lib/cfmx_bootstrap.jar" />
+				<pathelement location="${WEBINF}/lib/cfx.jar" />
+			</classpath>
+			<sysproperty key=" coldfusion.classPath" value="${CFUSION_HOME}/lib/updates" />
+			<sysproperty key=" coldfusion.libPath" value="${CFUSION_HOME}/lib" />
+			<arg line=" Compiler " />
+			<arg line=" -webroot ${webroot} " />
+			<arg line=" ${filePathToBuildFolder}" />
+		</java>
+		<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
+			<filterchain>
+				<LineContainsRegExp>
+					<regexp pattern="^Error*" />
+				</LineContainsRegExp>
+			</filterchain>
+		</loadfile>
+		<property name="src.file.cferrors" value="No compile Errors" />
+		<echo>${src.file.cferrors}</echo>
+		<echo>compile check complete for Adobe</echo>
+		<fail>
+			<condition>
+				<equals arg1="${java.compilecheck}" arg2="1" />
+			</condition>
+		</fail>
+	</target>
 
 	<target name="compile.acf.multi" unless="cfmlengine.acf.standalone">
 		<tstamp />
 
-		<!--ACF Compiler Arguments-->
-		<property name="coldfusion.bootstrap.jar" value="${compilePathJars}/WEB-INF/lib/cfmx_bootstrap.jar" />
-		<property name="coldfusion.cfx.jar" value="${compilePathJars}/WEB-INF/lib/cfx.jar" />
-		<property name="coldfusion.compiler.libpath" value="${compilePathJars}/WEB-INF/cfusion/lib/" />
-		<property name="coldfusion.compiler.classpath" value="${coldfusion.compiler.libpath}/updates,${coldfusion.compiler.libpath}" />
 		<property name="coldfusion.compiler.compileresults" value="compileresults.txt" />
 
-		<echo>Starting compile check for Adobe...</echo>
+		<echo>Starting mutli compile check for Adobe...</echo>
 		<echo>for ${filePathToBuildFolder}</echo>
+
 		<java classname="coldfusion.tools.CommandLineInvoker" fork="true" resultproperty="java.compilecheck" output="${coldfusion.compiler.compileresults}">
 			<classpath>
-				<pathelement location="${jrun.jar}" />
-				<pathelement location="${coldfusion.bootstrap.jar}" />
-				<pathelement location="${coldfusion.cfx.jar}" />
+				<pathelement location="${CFUSION_HOME}/runtime/lib/servlet-api.jar" />
+				<pathelement location="${CFUSION_HOME}/runtime/lib/jsp-api.jar" />
+				<pathelement location="${CFUSION_HOME}/runtime/lib/el-api.jar" />
+				<pathelement location="${WEBINF}/lib/cfmx_bootstrap.jar" />
+				<pathelement location="${WEBINF}/lib/cfx.jar" />
 			</classpath>
-			<sysproperty key=" coldfusion.classPath" value="${coldfusion.compiler.classpath}" />
-			<sysproperty key=" coldfusion.libPath" value="${coldfusion.compiler.libpath}" />
+			<sysproperty key=" coldfusion.classPath" value="${CFUSION_HOME}/lib/updates,${CFUSION_HOME}/lib" />
+			<sysproperty key=" coldfusion.libPath" value="${CFUSION_HOME}/lib" />
 			<arg line=" Compiler " />
-			<arg line=" -webroot ${compilePathJars} " />
+			<arg line=" -webinf ${WEBINF} " />
+			<arg line=" -webroot ${webroot} " />
+			<arg line=" -cfroot ${$CFUSION_HOME} " />
 			<arg line=" ${filePathToBuildFolder}" />
 		</java>
 		<loadfile srcfile="${coldfusion.compiler.compileresults}" property="src.file.cferrors">
