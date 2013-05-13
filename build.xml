@@ -468,13 +468,13 @@
 		<property name="src.file.cferrors" value="No compile Errors" />
 		<echo>${src.file.cferrors}</echo>
 		<echo>compile check complete for Adobe</echo>
+		<echo>any errors are detailed in compileresults.txt</echo>
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
 			</condition>
 		</fail>
 	</target>
-	
 	
 	<!--
 		=================================
