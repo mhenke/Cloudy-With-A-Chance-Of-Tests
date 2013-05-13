@@ -137,6 +137,7 @@
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
+				<exclude name="cpd.xml"/>
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
@@ -171,6 +172,7 @@
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
+				<exclude name="cpd.xml"/>
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
