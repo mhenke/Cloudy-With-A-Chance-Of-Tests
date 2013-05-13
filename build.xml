@@ -85,7 +85,7 @@
 			Target: all
 		=================================
 	-->
-	<target name="all" depends="init,compile.check,package,deploy" description="--> packages into a zip and uploads to google code" />
+	<target name="all" depends="init,compile.check,package,deploy" description="--> currently runs compile.check, package, and deploy targets" />
 
 	<!--
 		=================================
@@ -136,6 +136,7 @@
 				<exclude name="**/lib-cloudy/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
+				<exclude name="build.xml" />
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
@@ -169,6 +170,7 @@
 				<exclude name="**/lib-cloudy/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
+				<exclude name="build.xml" />
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
@@ -373,7 +375,7 @@
 			Checking if JavaScript source code complies with coding rules 
 		=================================
 	-->
-	 <target name="inspection.jslint" depends="init" description="this will inspect code for duplication">
+	 <target name="inspection.jslint" depends="init" description="this will inspect code for js issues">
 	 	<echo>Starting jslint...</echo>
 	 	<jslint haltOnFailure="false" options="sloppy">
 	 		<formatter type="xml" destfile="jslint.xml"/>
@@ -387,7 +389,7 @@
 			Checking if CSS source code complies with coding rules 
 		=================================
 	-->
-	<target name="inspection.csslint" depends="init" description="this will inspect code for duplication">
+	<target name="inspection.csslint" depends="init" description="this will inspect code for css issues">
 		<echo>Starting csslint...</echo>
 	    <apply executable="java" failonerror="false" parallel="true" output="csslint.xml">
 	        <fileset dir="${filePathToBuildFolder}" includes="**/*.css" />
