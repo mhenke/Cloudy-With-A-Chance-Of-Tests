@@ -85,7 +85,7 @@
 			Target: all
 		=================================
 	-->
-	<target name="all" depends="init,compile.check,inspection.qpscanner,inspection.varscoper,inspection.csslint,inspection.jslint,inspection.cpd,package,deploy" description="--> currently runs compile.check, package, and deploy targets" />
+	<target name="all" depends="init,compile.check,testing.unit,inspection.qpscanner,inspection.varscoper,inspection.csslint,inspection.jslint,inspection.cpd,package,deploy" description="--> currently runs compile.check, package, and deploy targets" />
 
 	<!--
 		=================================
