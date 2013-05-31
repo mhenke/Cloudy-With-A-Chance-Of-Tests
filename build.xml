@@ -134,6 +134,7 @@
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
 				<exclude name="**/lib-cloudy/**" />
+				<exclude name="**/CFSelenium/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
@@ -169,6 +170,7 @@
 				<exclude name="**/qpscanner/**" />
 				<exclude name="**/colddoc/**" />
 				<exclude name="**/lib-cloudy/**" />
+				<exclude name="**/CFSelenium/**" />
 				<exclude name="**/tests/**" />
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
