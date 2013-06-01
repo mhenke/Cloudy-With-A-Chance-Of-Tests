@@ -61,7 +61,6 @@
 		<fail message="mxunit.haltonfailure ${prop.message}" unless="mxunit.haltonfailure"/>
 		<fail message="mxunit.haltonerror ${prop.message}" unless="mxunit.haltonerror"/>
 		
-		
 		<!-- mxunit default properties -->
 		<property name="testing.unit.haltonfailure" value="false" />
 		<property name="testing.unit.haltonerror" value="false" />
@@ -105,7 +104,6 @@
 	<target name="clean">
 		<echo>Cleaning started...</echo>
 		<delete dir="${filePathToBuildFolder}" />
-		<delete file="${filePathToBuildFolder}" />
 		<delete file="compileresults.txt"/>
 		<delete file="cpd.xml"/>
 		<delete file="jslint.xml"/>
@@ -121,6 +119,8 @@
 		=================================
 	-->
 	<target name="copy" depends="init,clean" unless="jenkins_workspace">
+		<echo>Create ${filePathToBuildFolder}</echo>
+		<mkdir dir="${filePathToBuildFolder}"/>
 		<echo>Copying from ${webroot}/${directoryName}</echo>
 		<copy todir="${filePathToBuildFolder}">
 			<fileset dir="${webroot}/${directoryName}">
@@ -161,6 +161,8 @@
 		=================================
 	-->
 	<target name="copy.jenkins" depends="init,clean" if="jenkins_workspace">
+		<echo>Create ${filePathToBuildFolder}</echo>
+		<mkdir dir="${filePathToBuildFolder}"/>
 		<echo>Copying from ${jenkins_workspace}</echo>
 		<copy todir="${filePathToBuildFolder}">
 			<fileset dir="${jenkins_workspace}">
@@ -502,7 +504,6 @@
 		=================================
 	-->
 	<target name="compile.check" depends="init,copy,copy.jenkins" description="this will inspect code for syntax issues">
-		
 	 	<condition property="compile.nofiles">
     		<resourcecount when="equal" count="0">
       			<fileset dir="${filePathToBuildFolder}">
