@@ -105,6 +105,12 @@
 	<target name="clean">
 		<echo>Cleaning started...</echo>
 		<delete dir="${filePathToBuildFolder}" />
+		<delete file="${filePathToBuildFolder}" />
+		<delete file="compileresults.txt"/>
+		<delete file="cpd.xml"/>
+		<delete file="jslint.xml"/>
+		<delete file="csslint.xml"/>
+		<delete file="jslint-checkstyle.xml"/>
 		<echo>clean-up done</echo>
 	</target>
 
@@ -139,6 +145,10 @@
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
 				<exclude name="cpd.xml"/>
+				<exclude name="cpd.xml"/>
+				<exclude name="jslint.xml"/>
+				<exclude name="csslint.xml"/>
+				<exclude name="jslint-checkstyle.xml"/>
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
@@ -175,6 +185,9 @@
 				<exclude name="**/snapshots/**" />
 				<exclude name="build.xml" />
 				<exclude name="cpd.xml"/>
+				<exclude name="jslint.xml"/>
+				<exclude name="csslint.xml"/>
+				<exclude name="jslint-checkstyle.xml"/>
 			</fileset>
 		</copy>
 		<echo>done copying files</echo>
@@ -474,6 +487,7 @@
 		<echo>${src.file.cferrors}</echo>
 		<echo>compile check complete for Adobe</echo>
 		<echo>any errors are detailed in compileresults.txt</echo>
+		<echo>${java.compilecheck}</echo>
 		<fail>
 			<condition>
 				<equals arg1="${java.compilecheck}" arg2="1" />
@@ -488,23 +502,43 @@
 		=================================
 	-->
 	<target name="compile.check" depends="init,copy,copy.jenkins" description="this will inspect code for syntax issues">
+		
+	 	<condition property="compile.nofiles">
+    		<resourcecount when="equal" count="0">
+      			<fileset dir="${filePathToBuildFolder}">
+					<include name="**/*.cfm"/>
+					<include name="**/*.cfc"/>
+					<include name="**/*.cfml"/>
+				</fileset>
+	    	</resourcecount>
+	  	</condition>
+
 		<if>
-			<equals arg1="${cfmlengine.acf}" arg2="true"/>
+			<equals arg1="${compile.nofiles}" arg2="true"/>
 			<then>
-				<antcall target="compile.acf" />
+				<echo message="No ColdFusion files found for compile check." />
 			</then>
-		</if>
-		<if>
-			<equals arg1="${cfmlengine.railo}" arg2="true"/>
-			<then>
-				<antcall target="compile.railo" />
-			</then>
-		</if>
-		<if>
-			<equals arg1="${cfmlengine.openbd}" arg2="true"/>
-			<then>
-				<antcall target="compile.openbd" />
-			</then>
+			<else>
+				<if>
+					<equals arg1="${cfmlengine.acf}" arg2="true"/>
+
+					<then>
+						<antcall target="compile.acf" />
+					</then>
+				</if>
+				<if>
+					<equals arg1="${cfmlengine.railo}" arg2="true"/>
+					<then>
+						<antcall target="compile.railo" />
+					</then>
+				</if>
+				<if>
+					<equals arg1="${cfmlengine.openbd}" arg2="true"/>
+					<then>
+						<antcall target="compile.openbd" />
+					</then>
+				</if>
+			</else>
 		</if>
 	</target>
 	
